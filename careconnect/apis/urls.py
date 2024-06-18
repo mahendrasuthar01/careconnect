@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.urls import path
 from .views import UserListCreate, UserRetrieveUpdateDelete
-
+from .authentication import ObtainJWTToken
 urlpatterns = [
     path('users/', UserListCreate.as_view(), name='users-list-create'),
+    path('login/', ObtainJWTToken.as_view(), name='login'),
     path('users/<str:pk>/', UserRetrieveUpdateDelete.as_view(), name='users-detail'),
 ]
