@@ -169,12 +169,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'apis.authentication.JWTAuthentication',
-#     ], 
-# }
+# settings.py
 
-JWT_CONF = {
-    'TOKEN_LIFETIME_HOURS': 1
-}
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'darains.brainerhub@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'kbjt mtal webt xwqd'  # Replace with your Google Generated App Password

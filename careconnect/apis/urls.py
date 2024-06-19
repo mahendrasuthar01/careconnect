@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, CustomLoginView
+from .views import UserViewSet, CustomLoginView, VerifyOTPView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -24,4 +24,5 @@ router.register(r'users', UserViewSet, basename='user')
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', CustomLoginView.as_view(), name='custom_login'),
+    path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
 ]

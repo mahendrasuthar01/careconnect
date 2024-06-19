@@ -1,7 +1,9 @@
 # from django.db import models
 from mongoengine import Document, StringField, DateField, EmailField, DateTimeField, BooleanField
 from django.contrib.auth.hashers import make_password, check_password
-
+import random
+import string
+from datetime import datetime, timedelta
 
 class User(Document):
     username = StringField(max_length=100, unique=True)
@@ -16,6 +18,9 @@ class User(Document):
     is_active = BooleanField(default=True)
     is_admin = BooleanField(default=False)
     location = StringField(max_length=100, blank=True, null=True)
+    is_email_verified = BooleanField(default=False)
+    otp = StringField(max_length=6, blank=True, null=True)
+    otp_expires_at = DateTimeField(blank=True, null=True)
 
     # objects = UserManager()
 
@@ -37,3 +42,17 @@ class User(Document):
     def check_password(self, raw_password):
         # Check if the raw password matches the stored hashed password
         return check_password(raw_password, self.password)
+    
+    def generate_otp(self):
+        self.otp = ''.join(random.choices(string.digits, k=6))
+        self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
+        self.save()
+
+    def verify_otp(self, otp):
+        if self.otp == otp and self.otp_expires_at > datetime.utcnow():
+            self.is_email_verified = True
+            self.otp = None
+            self.otp_expires_at = None
+            self.save()
+            return True
+        return False
