@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-AUTH_USER_MODEL = 'apis.User'
+# AUTH_USER_MODEL = 'apis.User'
 
 # Application definition
 
@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apis',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework_mongoengine'
 ]
 
 MIDDLEWARE = [
@@ -76,13 +77,56 @@ WSGI_APPLICATION = 'careconnect.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+import mongoengine
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.dummy',
     }
 }
 
+# MongoEngine settings
+MONGODB_DATABASES = {
+    'default': {
+        'name': 'mydatabase',  # Your MongoDB database name
+        'host': 'localhost',   # MongoDB host
+        'port': 27017,         # MongoDB port
+        'username': '',        # If authentication is enabled
+        'password': '',
+        'authentication_source': 'admin',
+        'connect': False,      # Connect to MongoDB on start
+    },
+}
+
+mongoengine.connect(
+    db=MONGODB_DATABASES['default']['name'],
+    host=MONGODB_DATABASES['default']['host'],
+    port=MONGODB_DATABASES['default']['port'],
+    username=MONGODB_DATABASES['default']['username'],
+    password=MONGODB_DATABASES['default']['password'],
+    authentication_source=MONGODB_DATABASES['default']['authentication_source']
+)
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend
+    'apis.authentication.JWTAuthentication',    # Custom JWT authentication backend
+]
+
+# REST Framework settings (optional, if using)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # For session-based authentication
+        'rest_framework.authentication.TokenAuthentication',  # Optional: Token authentication
+        'apis.authentication.JWTAuthentication',  # Custom JWT authentication
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+JWT_SECRET_KEY = 'your_jwt_secret_key'
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_DELTA = 3600 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
