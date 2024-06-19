@@ -1,61 +1,36 @@
-from rest_framework.views import APIView
+import jwt
+from rest_framework_mongoengine import viewsets
 from rest_framework.response import Response
-from rest_framework import status
-from bson import ObjectId
-from .utils import get_db
-from .serializers import UserSerializer
-from apis.authentication import JWTAuthentication
+from rest_framework import status, permissions
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 
-class UserListCreate(APIView):
-    # authentication_classes = [JWTAuthentication]
-    def get(self, request):
-        db = get_db()
-        users = list(db['user'].find())
-        for user in users:
-            user['_id'] = str(user['_id'])  # Convert ObjectId to string for JSON serialization
-        return Response(users, status=status.HTTP_200_OK)
+from .models import User
+from .serializers import UserSerializer, LoginSerializer
+from .authentication import JWTAuthentication
 
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            db = get_db()
-            user = serializer.validated_data
-            result = db['user'].insert_one(user)
-            user['_id'] = str(result.inserted_id)
-            return Response(user, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class UserRetrieveUpdateDelete(APIView):
-    # authentication_classes = [JWTAuthentication]
-    def get_object(self, pk):
-        db = get_db()
-        user = db['user'].find_one({'_id': ObjectId(pk)})
-        if user:
-            user['_id'] = str(user['_id'])
-        return user
-
-    def get(self, request, pk):
-        user = self.get_object(pk)
-        if user:
-            return Response(user, status=status.HTTP_200_OK)
-        return Response({'error': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, pk):
-        user = self.get_object(pk)
-        if not user:
-            return Response({'error': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            db = get_db()
-            updated_user = serializer.validated_data
-            db['user'].update_one({'_id': ObjectId(pk)}, {'$set': updated_user})
-            updated_user['_id'] = pk
-            return Response(updated_user, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        db = get_db()
-        result = db['user'].delete_one({'_id': ObjectId(pk)})
-        if result.deleted_count:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'error': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
+class CustomLoginView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            
+            user_obj = User.objects.get(username=username)
+            if user_obj:
+                if user_obj.check_password(password):
+                    token = JWTAuthentication.generate_jwt(user_obj)
+                    return_dict = {
+                        'user': {'email': user_obj.email},
+                        'token': {'type': 'Bearer', 'token': token}
+                    }
+                    return Response(return_dict, status=status.HTTP_200_OK)
+                return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
