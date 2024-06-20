@@ -5,8 +5,8 @@ from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
-from .models import User
-from .serializers import UserSerializer, LoginSerializer, ForgotPasswordSerializer, ResetPasswordSerializer
+from .models import User, Category
+from .serializers import UserSerializer, LoginSerializer, ForgotPasswordSerializer, ResetPasswordSerializer, CategorySerializer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 
@@ -101,3 +101,9 @@ class ResetPasswordView(APIView):
                 return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer

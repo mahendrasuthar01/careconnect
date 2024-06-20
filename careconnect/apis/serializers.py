@@ -1,6 +1,6 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from rest_framework import serializers
-from .models import User
+from .models import User, Category
 from .email_utils import EmailUtil
 
 class UserSerializer(DocumentSerializer):
@@ -50,9 +50,16 @@ class ForgotPasswordSerializer(serializers.Serializer):
     class Meta:
         fields = ['email']
 
-
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     new_password = serializers.CharField()
     confirm_password = serializers.CharField()
     otp = serializers.CharField()
+
+class CategorySerializer(DocumentSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Category.objects.create(**validated_data)

@@ -58,3 +58,11 @@ class User(Document):
             self.save()
             return True
         return False
+    
+class Category(Document):
+    name = StringField(max_length=100, unique=True)
+    description = StringField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+    
