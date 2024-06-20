@@ -19,10 +19,10 @@ class CustomLoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            username = serializer.validated_data['username']
+            email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             
-            user_obj = User.objects.get(username=username)
+            user_obj = User.objects.get(email=email)
             if user_obj:
                 if user_obj.check_password(password):
                     token = JWTAuthentication.generate_jwt(user_obj)
