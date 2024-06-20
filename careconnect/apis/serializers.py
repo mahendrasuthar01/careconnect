@@ -43,3 +43,16 @@ class EmailSearchSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = ['email']
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        fields = ['email']
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField()
+    confirm_password = serializers.CharField()
+    otp = serializers.CharField()

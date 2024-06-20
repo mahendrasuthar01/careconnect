@@ -88,7 +88,7 @@ DATABASES = {
 # MongoEngine settings
 MONGODB_DATABASES = {
     'default': {
-        'name': 'mydatabase',  # Your MongoDB database name
+        'name': 'careconnect',  # Your MongoDB database name
         'host': 'localhost',   # MongoDB host
         'port': 27017,         # MongoDB port
         'username': '',        # If authentication is enabled
