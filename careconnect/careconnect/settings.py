@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# AUTH_USER_MODEL = 'apis.User'
+# AUTH_USER_MODEL = 'accounts.User'
 
 # Application definition
 
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apis',
+    'accounts',
+    'healthcare',
     'rest_framework',
     'rest_framework_mongoengine'
 ]
@@ -109,7 +110,7 @@ mongoengine.connect(
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend
-    'apis.authentication.JWTAuthentication',    # Custom JWT authentication backend
+    'accounts.authentication.JWTAuthentication',    # Custom JWT authentication backend
 ]
 
 # REST Framework settings (optional, if using)
@@ -117,7 +118,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # For session-based authentication
         'rest_framework.authentication.TokenAuthentication',  # Optional: Token authentication
-        'apis.authentication.JWTAuthentication',  # Custom JWT authentication
+        'accounts.authentication.JWTAuthentication',  # Custom JWT authentication
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',

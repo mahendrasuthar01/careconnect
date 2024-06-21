@@ -53,16 +53,9 @@ class User(Document):
         # if self.otp == otp and self.otp_expires_at > datetime.utcnow():
         if self.otp == otp:
             self.is_email_verified = True
-            self.otp = None
+            # self.otp = None
             self.otp_expires_at = None
             self.save()
             return True
         return False
-    
-class Category(Document):
-    name = StringField(max_length=100, unique=True)
-    description = StringField(max_length=500, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
     
