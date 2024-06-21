@@ -22,6 +22,17 @@ class UserSerializer(DocumentSerializer):
         return super().validate(attrs)
         
     def create(self, validated_data):
+
+        """
+        Create a new user with the given validated data.
+
+        Args:
+            validated_data (dict): A dictionary containing the validated data for the user.
+
+        Returns:
+            User
+        """
+
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)  # Hash the password

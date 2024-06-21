@@ -11,6 +11,11 @@ from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 
 class UserViewSet(viewsets.ModelViewSet):
+
+    """
+    Allows users to register.
+    """
+
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -18,6 +23,24 @@ class UserViewSet(viewsets.ModelViewSet):
 class CustomLoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
+
+        """
+        Handles the HTTP POST request for logging in a user.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response containing the user's email and token,
+                     if the login is successful. Otherwise, returns an error response.
+
+        Raises:
+            ValidationError: If the serializer is not valid.
+
+        """
+
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             email = serializer.validated_data['email']
@@ -41,6 +64,20 @@ class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+
+        """
+        Handles the POST request for verifying OTP.
+        
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        
+        Returns:
+            Response: The HTTP response object with a message if OTP is verified successfully, 
+                      otherwise an error response.
+        """
+
         serializer = VerifyOTPSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
