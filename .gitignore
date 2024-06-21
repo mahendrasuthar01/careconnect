@@ -1,0 +1,11 @@
+__pycache__/
+.env
+.venv
+venv/
+ENV/
+env/
+.vscode/
+.ven
+ven/
+VEN/
+poetry.lock

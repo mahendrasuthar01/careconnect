@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# AUTH_USER_MODEL = 'apis.User'
+# AUTH_USER_MODEL = 'accounts.User'
 
 # Application definition
 
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apis',
+    'accounts',
+    'healthcare',
     'rest_framework',
     'rest_framework_mongoengine'
 ]
@@ -88,7 +89,7 @@ DATABASES = {
 # MongoEngine settings
 MONGODB_DATABASES = {
     'default': {
-        'name': 'mydatabase',  # Your MongoDB database name
+        'name': 'careconnect',  # Your MongoDB database name
         'host': 'localhost',   # MongoDB host
         'port': 27017,         # MongoDB port
         'username': '',        # If authentication is enabled
@@ -109,7 +110,7 @@ mongoengine.connect(
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend
-    'apis.authentication.JWTAuthentication',    # Custom JWT authentication backend
+    'accounts.authentication.JWTAuthentication',    # Custom JWT authentication backend
 ]
 
 # REST Framework settings (optional, if using)
@@ -117,7 +118,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # For session-based authentication
         'rest_framework.authentication.TokenAuthentication',  # Optional: Token authentication
-        'apis.authentication.JWTAuthentication',  # Custom JWT authentication
+        'accounts.authentication.JWTAuthentication',  # Custom JWT authentication
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -168,3 +169,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'darains.brainerhub@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'kbjt mtal webt xwqd'  # Replace with your Google Generated App Password
