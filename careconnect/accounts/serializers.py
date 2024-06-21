@@ -4,10 +4,26 @@ from .models import User
 from .email_utils import EmailUtil
 
 class UserSerializer(DocumentSerializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+
     class Meta:
         model = User
         fields = '__all__'
 
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+
+        # Check if the username is unique
+        if User.objects(username=username).count() > 0:
+            raise serializers.ValidationError({"username": "Username already exists"})
+
+        # Check if the email is unique
+        if User.objects(email=email).count() > 0:
+            raise serializers.ValidationError({"email": "Email already exists"})
+
+        return super().validate(attrs)
 
     def create(self, validated_data):
         password = validated_data.pop('password')
