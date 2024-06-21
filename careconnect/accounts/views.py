@@ -61,6 +61,22 @@ class RequestPasswordResetView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
+
+        """
+        Handles the POST request for resetting the password.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object.
+
+        Raises:
+            User.DoesNotExist: If the user is not found.
+
+        This function validates the request data using the RequestPasswordResetSerializer. If the data is valid, it retrieves the user with the given email from the User model. It then generates and saves an OTP (One-Time Password) for the user. An email is sent to the user with the OTP. The email subject is 'Your OTP Code' and the email body contains the OTP. If the user is not found, a response with status code 404 and error message 'User not found' is returned. If the data is not valid, a response with status code 400 and serializer errors is returned. If the data is valid and the user is found, a response with status code 200 and message 'OTP sent successfully' is returned.
+        """
+
         serializer = RequestPasswordResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -80,10 +96,26 @@ class RequestPasswordResetView(APIView):
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        
+        """
+        Resets the password for a user.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object.
+
+        Raises:
+            User.DoesNotExist: If the user is not found.
+
+        """
+        
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']

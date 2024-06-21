@@ -16,15 +16,11 @@ class UserSerializer(DocumentSerializer):
         email = attrs.get('email')
 
         # Check if the username is unique
-        if User.objects(username=username).count() > 0:
-            raise serializers.ValidationError({"username": "Username already exists"})
-
-        # Check if the email is unique
-        if User.objects(email=email).count() > 0:
-            raise serializers.ValidationError({"email": "Email already exists"})
+        if User.objects(username=username).count() > 0 or User.objects(email=email).count() > 0:
+            raise serializers.ValidationError({"error": {"message": "Username or Email already exists"}})
 
         return super().validate(attrs)
-
+        
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User(**validated_data)
@@ -41,7 +37,7 @@ class UserSerializer(DocumentSerializer):
         EmailUtil.send_email(email_data)
 
         return user
-    
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()

@@ -6,8 +6,8 @@ import string
 from datetime import datetime, timedelta
 
 class User(Document):
-    username = StringField(max_length=100, unique=True)
-    email = EmailField(unique=True)
+    username = StringField(max_length=100)
+    email = EmailField()
     password = StringField(max_length=100, null=False, blank=False)
     phone_number = StringField(max_length=15, blank=True, null=True)
     dob = DateField(blank=True, null=True)
