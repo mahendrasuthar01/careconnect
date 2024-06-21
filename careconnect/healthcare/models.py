@@ -12,9 +12,9 @@ class Category(Document):
 class WorkingTime(Document):
     entity_id = StringField()
     entity_type = StringField()
-    day = StringField()
-    start_time = StringField(max_length=5)
-    end_time = StringField(max_length=5)
+    day = StringField() 
+    start_time = StringField(max_length=5, required=True)
+    end_time = StringField(max_length=5, required=True)
 
 
     meta = {
@@ -26,3 +26,6 @@ class WorkingTime(Document):
             'end_time',
         ]
     }
+
+    def __str__(self):
+        return f"WorkingTime ID: {self.id}, Entity ID: {self.entity_id}, Day: {self.day}"
