@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'accounts',
     'healthcare',
     'rest_framework',
-    'rest_framework_mongoengine'
+    'rest_framework_mongoengine',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -178,3 +179,12 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'darains.brainerhub@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'kbjt mtal webt xwqd'  # Replace with your Google Generated App Password
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        }
+    }
+}

@@ -4,7 +4,6 @@ from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
 from datetime import datetime, timedelta
-from rest_framework import serializers
 
 class User(Document):
     username = StringField(max_length=100)
