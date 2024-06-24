@@ -1,4 +1,6 @@
 from mongoengine import Document, StringField, URLField, EmailField
+from django.db import models
+from django.utils import timezone
 # Create your models here.
 
 class Category(Document):
@@ -40,6 +42,24 @@ class Hospital(Document):
     email = EmailField(max_length=254)
     location_id = StringField()
     working_time_id = StringField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
+
+class Doctor(Document):
+    user_id = StringField(max_length=255)
+    name = StringField(max_length=255)
+    speciality_id = StringField(max_length=255)
+    working_time_id = StringField(max_length=255)
+    about = models.TextField()
+    location_id = StringField(max_length=255)
+    sign_up_date = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    total_experience = models.IntegerField()
+    total_patients = models.IntegerField()
+    review_id = StringField(max_length=255)
+    hospital_id = StringField(max_length=255)
 
     def __str__(self):
         return self.name

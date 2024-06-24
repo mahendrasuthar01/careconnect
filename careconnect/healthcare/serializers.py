@@ -1,5 +1,5 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
-from .models import Category, WorkingTime, Hospital
+from .models import Category, WorkingTime, Hospital, Doctor
 
 class CategorySerializer(DocumentSerializer):
     class Meta:
@@ -19,4 +19,10 @@ class WorkingTimeSerializer(DocumentSerializer):
 class HospitalSerializer(DocumentSerializer):
     class Meta:
         model = Hospital
+        fields = '__all__'
+
+
+class DoctorSerializer(DocumentSerializer):
+    class Meta:
+        model = Doctor
         fields = '__all__'

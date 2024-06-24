@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Category, WorkingTime, Hospital
+from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
-from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer
+from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer
 from mongoengine.errors import ValidationError
 from django.http import Http404
 from mongoengine.errors import DoesNotExist
@@ -55,7 +55,7 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
             raise Http404("Working-Time with the given ID not found.")
 
         instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'No Content Available for the given ID'}, status=status.HTTP_204_NO_CONTENT)
     
 
 class HospitalViewSet(viewsets.ModelViewSet):
@@ -99,4 +99,48 @@ class HospitalViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         instance = self.get_object(pk)
         instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'No Content Available for the given ID'}, status=status.HTTP_204_NO_CONTENT)
+    
+
+class DoctorViewSet(viewsets.ModelViewSet):
+    serializer_class = DoctorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Doctor.objects.all()
+
+    def get_object(self, pk):
+        try:
+            return Doctor.objects.get(pk=pk)
+        except Doctor.DoesNotExist:
+            raise Http404("Doctor with the given ID does not exist.")
+        
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, pk=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response({'message': 'No Content Available for the given ID'}, status=status.HTTP_204_NO_CONTENT)
