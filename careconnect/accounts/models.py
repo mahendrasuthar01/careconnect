@@ -1,13 +1,14 @@
 # from django.db import models
-from mongoengine import Document, StringField, DateField, EmailField, DateTimeField, BooleanField
+from mongoengine import Document, StringField, DateField, EmailField, DateTimeField, BooleanField, ReferenceField, CASCADE
 from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
 from datetime import datetime, timedelta
+from rest_framework import serializers
 
 class User(Document):
-    username = StringField(max_length=100, unique=True)
-    email = EmailField(unique=True)
+    username = StringField(max_length=100)
+    email = EmailField()
     password = StringField(max_length=100, null=False, blank=False)
     phone_number = StringField(max_length=15, blank=True, null=True)
     dob = DateField(blank=True, null=True)
@@ -44,8 +45,8 @@ class User(Document):
         return check_password(raw_password, self.password)
     
     def generate_otp(self):
-        # self.otp = ''.join(random.choices(string.digits, k=4))
-        self.otp = '0000'
+        self.otp = ''.join(random.choices(string.digits, k=4))
+        # self.otp = '0000'
         # self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
         self.save()
 
@@ -59,3 +60,18 @@ class User(Document):
             return True
         return False
     
+class BookingForChoices:
+    SELF = 'self'
+    OTHER = 'other'
+    CHOICES = [
+        (SELF, 'Self'),
+        (OTHER, 'Other'),
+    ]
+
+class Patient(Document):
+    user = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
+    name = StringField(max_length=100)
+    booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='self')
+    gender = StringField(max_length=10, blank=True, null=True)
+    age = StringField(max_length=10, blank=True, null=True)
+    problem_description = StringField(max_length=500, blank=True, null=True)
