@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, CustomLoginView, VerifyOTPView, RequestPasswordResetView, ResetPasswordView
+from .views import UserViewSet, CustomLoginView, VerifyOTPView, RequestPasswordResetView, ResetPasswordView, PatientViewSet, PatientsByUserView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
+router.register(r'patients', PatientViewSet, basename='patient')
+
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -27,4 +29,5 @@ urlpatterns = [
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
     path('forgot-password/', RequestPasswordResetView.as_view(), name='forgot_password'),
     path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+    path('patients/by-user/<user_id>/', PatientsByUserView.as_view(), name='patients_by_user'),
 ]

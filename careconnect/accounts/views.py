@@ -5,10 +5,12 @@ from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
-from .models import User
-from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer
+from .models import User, Patient
+from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer, PatientSerializer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
+
+from django.db.models import QuerySet 
 
 class UserViewSet(viewsets.ModelViewSet):
 
@@ -171,3 +173,22 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
+
+class PatientViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = PatientSerializer
+    queryset = Patient.objects.all()
+
+class PatientsByUserView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = PatientSerializer
+
+    def get(self, request, user_id):
+        try:
+            patients = Patient.objects.filter(user=user_id)
+            if not patients:
+                return Response({"error": {"message": "No patients found for this user"}}, status=status.HTTP_404_NOT_FOUND)
+            serializer = PatientSerializer(patients, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": {"message": str(e)}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

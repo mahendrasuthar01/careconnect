@@ -1,7 +1,8 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from rest_framework import serializers
-from .models import User
+from .models import User, Patient, BookingForChoices
 from .email_utils import EmailUtil
+from django.contrib.auth.models import AnonymousUser
 
 class UserSerializer(DocumentSerializer):
     username = serializers.CharField()
@@ -73,3 +74,36 @@ class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     new_password = serializers.CharField()
     otp = serializers.CharField()
+
+
+class PatientSerializer(DocumentSerializer):  # Adjust DocumentSerializer as per your actual setup
+    class Meta:
+        model = Patient
+        fields = '__all__'
+
+    def validate(self, data):
+        booking_for = data.get('booking_for')
+        user = data.get('user')
+
+        if booking_for == 'self' and not user:
+            raise serializers.ValidationError({"error": {"message": "User is required when booking for self"}})
+        
+        return data
+    
+    def create(self, validated_data):
+        if 'user' in validated_data and isinstance(validated_data['user'], AnonymousUser):
+            validated_data['user'] = None
+
+        check_patient_in_database = Patient.objects(
+            booking_for=validated_data['booking_for'],
+            name=validated_data['name'],
+            user=validated_data['user'],
+        )
+
+        if check_patient_in_database:
+            raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+
+        patient = Patient(**validated_data)
+
+        patient.save()
+        return patient

@@ -1,5 +1,5 @@
 # from django.db import models
-from mongoengine import Document, StringField, DateField, EmailField, DateTimeField, BooleanField
+from mongoengine import Document, StringField, DateField, EmailField, DateTimeField, BooleanField, ReferenceField, CASCADE
 from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
@@ -59,3 +59,29 @@ class User(Document):
             return True
         return False
     
+class BookingForChoices:
+    SELF = 'self'
+    OTHER = 'other'
+    CHOICES = [
+        (SELF, 'Self'),
+        (OTHER, 'Other'),
+    ]
+
+class Patient(Document):
+    user = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
+    name = StringField(max_length=100)
+    booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='self')
+    gender = StringField(max_length=10, blank=True, null=True)
+    age = StringField(max_length=10, blank=True, null=True)
+    problem_description = StringField(max_length=500, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.booking_for == 'self':
+            if self.user:
+                self.name = self.user.username
+                self.gender = self.user.gender
+                self.age = self.user.dob
+            else:
+                raise ValueError('User is required when booking for self')
+
+        super(Patient, self).save(*args, **kwargs)
