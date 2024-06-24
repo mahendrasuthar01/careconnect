@@ -76,34 +76,46 @@ class ResetPasswordSerializer(serializers.Serializer):
     otp = serializers.CharField()
 
 
-class PatientSerializer(DocumentSerializer):  # Adjust DocumentSerializer as per your actual setup
+class PatientSerializer(DocumentSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
-
-    def validate(self, data):
-        booking_for = data.get('booking_for')
-        user = data.get('user')
-
-        if booking_for == 'self' and not user:
-            raise serializers.ValidationError({"error": {"message": "User is required when booking for self"}})
-        
-        return data
     
     def create(self, validated_data):
-        if 'user' in validated_data and isinstance(validated_data['user'], AnonymousUser):
-            validated_data['user'] = None
 
-        check_patient_in_database = Patient.objects(
-            booking_for=validated_data['booking_for'],
-            name=validated_data['name'],
-            user=validated_data['user'],
-        )
+        """
+        Create a new Patient object based on the validated data.
 
-        if check_patient_in_database:
-            raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+        Args:
+            validated_data (dict): A dictionary containing the validated data for the Patient object.
+
+        Returns:
+            Patient: The newly created Patient object.
+
+        Raises:
+            serializers.ValidationError: If a Patient object with the same booking_for and user already exists.
+        """
+
+        booking_for = validated_data['booking_for']
+        user = validated_data['user']
+
+        if booking_for == 'self':
+            if Patient.objects(user=user).first():
+                raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+            
+            validated_data['name'] = user.username if hasattr(user, 'username') else ''
+            validated_data['gender'] = user.gender if hasattr(user, 'gender') else ''
+            validated_data['age'] = user.dob if hasattr(user, 'dob') else ''
+
+        else:
+            name = validated_data.get('name', '')
+            if Patient.objects(
+                booking_for='other',
+                name=name,
+                user=user,
+            ).first():
+                raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
 
         patient = Patient(**validated_data)
-
         patient.save()
         return patient

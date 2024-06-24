@@ -22,6 +22,31 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def destroy(self, request, *args, **kwargs):
+
+        """
+        Deletes a user object from the database.
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object with a message if the user is deleted successfully,
+                     otherwise an error response.
+
+        Raises:
+            Exception: If the user is not found in the database.
+        """
+
+        try:
+            user = self.get_object()
+            user.delete()
+            return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
 class CustomLoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -130,7 +155,7 @@ class RequestPasswordResetView(APIView):
                     'to_email': user.email
                 }
                 EmailUtil.send_email(send_email_data)
-                return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
+                return Response({'message': 'OTP sent successfully', 'otp': user.otp}, status=status.HTTP_200_OK)
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -179,11 +204,50 @@ class PatientViewSet(viewsets.ModelViewSet):
     serializer_class = PatientSerializer
     queryset = Patient.objects.all()
 
+    def destroy(self, request, *args, **kwargs):
+
+        """
+        Deletes a patient object from the database.
+
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object with a message if the patient is deleted successfully, 
+                     otherwise an error response.
+
+        Raises:
+            Exception: If the patient is not found in the database.
+        """
+
+        try:
+            patient = self.get_object()
+            patient.delete()
+            return Response({"message": "Patient deleted successfully"}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
 class PatientsByUserView(APIView):
     permission_classes = [AllowAny]
     serializer_class = PatientSerializer
 
     def get(self, request, user_id):
+
+        """
+        Retrieves all patients associated with a specific user.
+
+        Args:
+            request (Request): The HTTP request object.
+            user_id (int): The ID of the user.
+
+        Returns:
+            Response: If patients are found, returns a Response object with the serialized patient data and a 200 status code.
+                     If no patients are found, returns a Response object with an error message and a 404 status code.
+                     If an exception occurs, returns a Response object with the error message and a 500 status code.
+        """
+
         try:
             patients = Patient.objects.filter(user=user_id)
             if not patients:

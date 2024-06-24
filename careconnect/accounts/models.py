@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
 from datetime import datetime, timedelta
+from rest_framework import serializers
 
 class User(Document):
     username = StringField(max_length=100)
@@ -44,8 +45,8 @@ class User(Document):
         return check_password(raw_password, self.password)
     
     def generate_otp(self):
-        # self.otp = ''.join(random.choices(string.digits, k=4))
-        self.otp = '0000'
+        self.otp = ''.join(random.choices(string.digits, k=4))
+        # self.otp = '0000'
         # self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
         self.save()
 
@@ -74,14 +75,3 @@ class Patient(Document):
     gender = StringField(max_length=10, blank=True, null=True)
     age = StringField(max_length=10, blank=True, null=True)
     problem_description = StringField(max_length=500, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if self.booking_for == 'self':
-            if self.user:
-                self.name = self.user.username
-                self.gender = self.user.gender
-                self.age = self.user.dob
-            else:
-                raise ValueError('User is required when booking for self')
-
-        super(Patient, self).save(*args, **kwargs)
