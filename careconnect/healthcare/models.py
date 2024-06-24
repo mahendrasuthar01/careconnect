@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField
+from mongoengine import Document, StringField, URLField, EmailField
 # Create your models here.
 
 class Category(Document):
@@ -29,3 +29,17 @@ class WorkingTime(Document):
 
     def __str__(self):
         return f"WorkingTime ID: {self.id}, Entity ID: {self.entity_id}, Day: {self.day}"
+    
+
+class Hospital(Document):
+    category_id = StringField(max_length=255)
+    name = StringField(max_length=255)
+    review_id = StringField(max_length=255)
+    website = URLField(max_length=200, blank=True, null=True)
+    phone_number = StringField(max_length=10)
+    email = EmailField(max_length=254)
+    location_id = StringField()
+    working_time_id = StringField(max_length=255)
+
+    def __str__(self):
+        return self.name
