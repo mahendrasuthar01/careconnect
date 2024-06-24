@@ -16,38 +16,14 @@ class WorkingTimeSerializer(DocumentSerializer):
         model = WorkingTime
         fields = '__all__'
 
-    def delete_instance(self, pk):
-        try:
-            instance = WorkingTime.objects.get(pk=pk)
-            instance.delete()
-            return {'message': 'WorkingTime deleted successfully'}
-        except WorkingTime.DoesNotExist:
-            raise Http404("WorkingTime not found")
-
 
 class HospitalSerializer(DocumentSerializer):
     class Meta:
         model = Hospital
         fields = '__all__'
 
-    def delete_instance(self, pk):
-        try:
-            instance = Hospital.objects.get(pk=pk)
-            instance.delete()
-            return {'message': 'Hospital deleted successfully'}
-        except Hospital.DoesNotExist:
-            raise Http404("Hospital not found")
-
 
 class DoctorSerializer(DocumentSerializer):
     class Meta:
         model = Doctor
         fields = '__all__'
-
-    def delete_instance(self, pk):
-        try:
-            instance = Doctor.objects.get(pk=pk)
-            instance.delete()
-            return {'message': 'Doctor deleted successfully'}
-        except Doctor.DoesNotExist:
-            raise Http404("Doctor not found")
