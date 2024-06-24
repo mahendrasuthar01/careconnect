@@ -34,12 +34,12 @@ class WorkingTime(Document):
     
 
 class Hospital(Document):
-    category_id = StringField(max_length=255)
-    name = StringField(max_length=255)
+    category_id = StringField(max_length=255, required=True)
+    name = StringField(max_length=255, required=True)
     review_id = StringField(max_length=255)
     website = URLField(max_length=200, blank=True, null=True)
-    phone_number = StringField(max_length=10)
-    email = EmailField(max_length=254)
+    phone_number = StringField(max_length=10, required=True)
+    email = EmailField(max_length=254, required=True)
     location_id = StringField()
     working_time_id = StringField(max_length=255)
 
@@ -48,8 +48,8 @@ class Hospital(Document):
     
 
 class Doctor(Document):
-    user_id = StringField(max_length=255)
-    name = StringField(max_length=255)
+    user_id = StringField(max_length=255, required=True)
+    name = StringField(max_length=255, required=True)
     speciality_id = StringField(max_length=255)
     working_time_id = StringField(max_length=255)
     about = models.TextField()
@@ -59,7 +59,7 @@ class Doctor(Document):
     total_experience = models.IntegerField()
     total_patients = models.IntegerField()
     review_id = StringField(max_length=255)
-    hospital_id = StringField(max_length=255)
+    hospital_id = StringField(max_length=255, required=True)
 
     def __str__(self):
         return self.name
