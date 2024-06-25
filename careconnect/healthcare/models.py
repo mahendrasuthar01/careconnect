@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE
+from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField
 from django.db import models
 from django.utils import timezone
 from accounts.models import User
@@ -14,7 +14,9 @@ class Category(Document):
 
 class WorkingTime(Document):
     entity_id = StringField()
-    entity_type = StringField()
+    entity_type = IntField(max_length=100, choices=
+        [(1, "Doctor"),
+        (2, "Hospital")])
     day = StringField() 
     start_time = StringField(max_length=5, required=True)
     end_time = StringField(max_length=5, required=True)
