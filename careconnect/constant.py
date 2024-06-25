@@ -1,4 +1,5 @@
-from .healthcare.models import WorkingTime
+from healthcare.models import WorkingTime
+
 
 class WorkingTimeManager:
     MONDAY = 1
@@ -37,3 +38,15 @@ class WorkingTimeManager:
                 end_time=end_time
             )
             working_time.save()
+
+
+class EntityChoices:
+    DOCTOR = 1,
+    HOSPITAL = 2,
+
+    CHOICES = [
+        (DOCTOR, "Doctor"),
+        (HOSPITAL, "Hospital")
+    ]
+
+
