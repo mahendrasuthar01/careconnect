@@ -2,7 +2,7 @@ from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
 from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer
-
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -28,7 +28,7 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 class HospitalViewSet(viewsets.ModelViewSet):
     queryset = Hospital.objects.all()
     serializer_class = HospitalSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -43,7 +43,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
 class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
      
     def destroy(self, request, *args, **kwargs):
         try:

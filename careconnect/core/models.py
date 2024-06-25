@@ -18,3 +18,10 @@ class Favorite(Document):
         [(1, "Doctor"),
         (2, "Hospital")])
 
+class Location(Document):
+    address = StringField(max_length=255, required=True)
+    street = StringField(max_length=255)
+    neighborhood = StringField()
+    city = StringField(max_length=255, required=True)
+    state = StringField(max_length=255, required=True)
+    country = StringField(max_length=255, required=True)

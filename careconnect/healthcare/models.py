@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField
+from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField, FileField
 from django.db import models
 from django.utils import timezone
 from accounts.models import User
