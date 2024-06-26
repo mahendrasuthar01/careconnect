@@ -49,7 +49,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
             if files:
                 image_url = self.save_file(files)
             else:
-                image_url = ""
+                image_url = None
 
             hospital = Hospital(
                 category_id=serializer.validated_data.get('category_id'),
@@ -67,7 +67,10 @@ class HospitalViewSet(viewsets.ModelViewSet):
             hospital.save()
 
             response_data = serializer.data
-            response_data['file_path'] = request.build_absolute_uri('/' + image_url)
+            response_data['files'] = None
+
+            if image_url is not None:
+                response_data['file_path'] = request.build_absolute_uri('/' + image_url)
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
@@ -103,7 +106,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
             if files:
                 file_url = self.save_file(files)
             else:
-                file_url = ""
+                file_url = None
 
             doctor = Doctor(
                 user_id=serializer.validated_data.get('user_id'),
@@ -125,7 +128,10 @@ class DoctorViewSet(viewsets.ModelViewSet):
             doctor.save()
 
             response_data = serializer.data
-            response_data['file_path'] = request.build_absolute_uri('/' + file_url)
+            response_data['files'] = None
+
+            if file_url is not None:
+                response_data['file_path'] = request.build_absolute_uri('/' + file_url)
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
