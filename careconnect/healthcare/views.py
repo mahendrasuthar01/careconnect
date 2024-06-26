@@ -72,39 +72,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.serializer_class(instance, data=request.data, partial=partial)
-        if serializer.is_valid():
-            files = request.FILES.get('files', None)
-            if files:
-                image_url = self.save_file(files)
-            else:
-                image_url = instance.files 
-
-            instance.category_id = serializer.validated_data.get('category_id', instance.category_id)
-            instance.name = serializer.validated_data.get('name', instance.name)
-            instance.review_id = serializer.validated_data.get('review', instance.review_id)
-            instance.website = serializer.validated_data.get('website', instance.website)
-            instance.phone_number = serializer.validated_data.get('phone_number', instance.phone_number)
-            instance.email = serializer.validated_data.get('email', instance.email)
-            instance.location_id = serializer.validated_data.get('location_id', instance.location_id)
-            instance.working_time_id = serializer.validated_data.get('working_time_id', instance.working_time_id)
-            instance.address = serializer.validated_data.get('address', instance.address)
-            instance.specialist=serializer.validated_data.get('specialist', instance.specialist)
-            instance.files = image_url
-            instance.save()
-
-            response_data = serializer.data
-            response_data['file_path'] = request.build_absolute_uri('/' + image_url)
-
-            return Response(response_data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -164,38 +132,6 @@ class DoctorViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.serializer_class(instance, data=request.data, partial=partial)
-        if serializer.is_valid():
-            files = request.FILES.get('files', None)
-            if files:
-                file_url = self.save_file(files)
-            else:
-                file_url = instance.files
-
-            instance.user_id = serializer.validated_data.get('user_id', instance.user_id)
-            instance.name = serializer.validated_data.get('name', instance.name)
-            instance.speciality_id = serializer.validated_data.get('speciality_id', instance.speciality_id)
-            instance.working_time_id = serializer.validated_data.get('working_time_id', instance.working_time_id)
-            instance.about = serializer.validated_data.get('about', instance.about)
-            instance.location_id = serializer.validated_data.get('location_id', instance.location_id)
-            instance.total_experience = serializer.validated_data.get('total_experience', instance.total_experience)
-            instance.total_patients = serializer.validated_data.get('total_patients', instance.total_patients)
-            instance.review_id = serializer.validated_data.get('review_id', instance.review_id)
-            instance.hospital_id = serializer.validated_data.get('hospital_id', instance.hospital_id)
-            instance.files = file_url
-            instance.save()
-
-            response_data = serializer.data
-            response_data['file_path'] = request.build_absolute_uri('/' + file_url)
-
-            return Response(response_data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-     
     def destroy(self, request, *args, **kwargs):
         try:
             doctor = self.get_object()
