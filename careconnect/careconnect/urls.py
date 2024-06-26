@@ -43,5 +43,5 @@ urlpatterns = [
     path('appointments/', include('appointments.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui'),
     # path('appointments/', include('appointments.urls')),
-    # path('core/', include('core.urls'))
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+    path('core/', include('core.urls'))
+]
