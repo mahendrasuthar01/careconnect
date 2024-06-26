@@ -86,9 +86,11 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 
 
 class HospitalViewSet(viewsets.ModelViewSet):
-    queryset = Hospital.objects.all()
     serializer_class = HospitalSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Hospital.objects.all()
 
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_files', file.name)
@@ -144,9 +146,11 @@ class HospitalViewSet(viewsets.ModelViewSet):
     
     
 class DoctorViewSet(viewsets.ModelViewSet):
-    queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Doctor.objects.all()
 
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'doctors_files', file.name)
