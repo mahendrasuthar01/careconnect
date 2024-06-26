@@ -6,9 +6,13 @@ from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSeri
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 import os
+from django.utils import timezone
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     def get_queryset(self):
         return Category.objects.all()
@@ -82,9 +86,39 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 
 
 class HospitalViewSet(viewsets.ModelViewSet):
-    queryset = Hospital.objects.all()
     serializer_class = HospitalSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Hospital.objects.all()
+
+    def save_file(self, file):
+        file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_files', file.name)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        return 'media/uploaded_files/' + file.name
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            files = request.FILES.get('files', None)
+            image_url = self.save_file(files) if files else None
+
+            hospital = serializer.save(files=image_url)
+
+            response_data = serializer.data
+            response_data['files'] = None
+
+            if image_url is not None:
+                response_data['file_path'] = request.build_absolute_uri('/' + image_url)
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -95,12 +129,42 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response({"error": "Hospital not found"}, status=status.HTTP_404_NOT_FOUND)
     
     
-
 class DoctorViewSet(viewsets.ModelViewSet):
-    queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
-    permission_classes = [AllowAny]
-     
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Doctor.objects.all()
+    
+
+    def save_file(self, file):
+        file_path = os.path.join(settings.MEDIA_ROOT, 'doctors_files', file.name)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        return 'media/doctors_files/' + file.name
+    
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            files = request.FILES.get('files', None)
+            file_url = self.save_file(files) if files else None
+
+            doctor = serializer.save(files=file_url, is_active=True)
+
+            response_data = serializer.data
+            response_data['files'] = None
+
+            if file_url is not None:
+                response_data['file_path'] = request.build_absolute_uri('/' + file_url)
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
     def destroy(self, request, *args, **kwargs):
         try:
             doctor = self.get_object()
