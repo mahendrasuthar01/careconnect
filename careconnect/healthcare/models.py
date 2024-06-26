@@ -63,7 +63,7 @@ class Doctor(Document):
     about = StringField() 
     location_id = StringField(max_length=255)
     is_active = BooleanField(default=True)
-    is_favorite = BooleanField(default=False)
+    is_favorite = BooleanField()
     total_experience = IntField()
     total_patients = IntField()
     review_id = StringField(max_length=255)

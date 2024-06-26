@@ -144,7 +144,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
                 working_time_id=serializer.validated_data.get('working_time_id'),
                 about=serializer.validated_data.get('about'),
                 location_id=serializer.validated_data.get('location_id'),
-                is_favorite=serializer.validated_data.get('is_favorite', False),
+                is_favorite=serializer.validated_data.get('is_favorite'),
                 is_active=True,
                 total_experience=serializer.validated_data.get('total_experience'),
                 total_patients=serializer.validated_data.get('total_patients'),
