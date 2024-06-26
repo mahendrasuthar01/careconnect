@@ -1,7 +1,8 @@
-from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField, FileField
+from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField, BooleanField
 from django.db import models
 from django.utils import timezone
 from accounts.models import User
+import os
 # Create your models here.
 
 class Category(Document):
@@ -45,6 +46,10 @@ class Hospital(Document):
     email = EmailField(max_length=254, required=True)
     location_id = StringField()
     working_time_id = ReferenceField(WorkingTime, reverse_delete_rule=CASCADE, max_length=255)
+    address = StringField(max_length=255, required=True)
+    specialist = StringField(max_length=255, required=True)
+    files = StringField()
+
 
     def __str__(self):
         return self.name
@@ -55,14 +60,15 @@ class Doctor(Document):
     name = StringField(max_length=255, required=True)
     speciality_id = StringField(max_length=255)
     working_time_id = ReferenceField(WorkingTime, reverse_delete_rule=CASCADE, max_length=255)
-    about = models.TextField()
+    about = StringField() 
     location_id = StringField(max_length=255)
-    sign_up_date = models.DateTimeField(default=timezone.now)
-    is_active = models.BooleanField(default=True)
-    total_experience = models.IntegerField()
-    total_patients = models.IntegerField()
+    is_active = BooleanField(default=True)
+    is_favorite = BooleanField(default=False)
+    total_experience = IntField()
+    total_patients = IntField()
     review_id = StringField(max_length=255)
     hospital_id = ReferenceField(Hospital, reverse_delete_rule=CASCADE, max_length=255)
+    files = StringField()
 
     def __str__(self):
         return self.name
