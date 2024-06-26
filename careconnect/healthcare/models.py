@@ -50,6 +50,7 @@ class Hospital(Document):
     working_time_id = ReferenceField(WorkingTime, reverse_delete_rule=CASCADE, max_length=255)
     address = StringField(max_length=255, required=True)
     specialist = StringField(max_length=255, required=True)
+    is_favorite = BooleanField()
     files = StringField()
 
 

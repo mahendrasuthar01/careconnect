@@ -118,6 +118,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
                 working_time_id=serializer.validated_data.get('working_time_id'),
                 address=serializer.validated_data.get('address'),
                 specialist=serializer.validated_data.get('specialist'),
+                is_favorite=serializer.validated_data.get('is_favorite'),
                 files=image_url
             )
             hospital.save()
