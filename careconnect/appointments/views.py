@@ -1,5 +1,5 @@
-from .models import DoctorPackage
-from .serializers import DoctorPackageSerializer
+from .models import DoctorPackage, Appointment
+from .serializers import DoctorPackageSerializer, AppointmentSerializer
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -17,3 +17,27 @@ class DoctorPackageViewset(viewsets.ModelViewSet):
             return Response({"message": "Package deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Package not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class AppointmentViewset(viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [AllowAny]
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            appointment = self.get_object()
+            appointment.delete()
+            return Response({"message": "Appointment deleted successfully"}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def update(self, request, *args, **kwargs):
+        try:
+            appointment = self.get_object()
+            serializer = self.get_serializer(appointment, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Exception:
+            return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)

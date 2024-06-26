@@ -1,13 +1,15 @@
-from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE
+from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, ListField, CASCADE, ImageField
 from django.db import models
 from django.utils import timezone
 from accounts.models import User
-# Create your models here.
+import os
+from django.conf import settings
 
 class Category(Document):
     name = StringField(max_length=100, unique=True)
     description = StringField(max_length=500, blank=True, null=True)
-    icon_key = StringField(max_length=500, blank=True, null=True)
+    files = StringField()
+    # file_path = URLField(blank=True, null=True)
 
     def __str__(self):
         return self.name

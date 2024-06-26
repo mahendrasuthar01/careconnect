@@ -25,4 +25,4 @@ class Appointment(Document):
     package_id = ReferenceField(DoctorPackage, reverse_delete_rule=CASCADE, required=True)
     date = DateTimeField(required=True)
     time = StringField(required=True)
-    # confirm_status = 
+    confirm_status = BooleanField(default=False)
