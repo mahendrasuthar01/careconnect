@@ -1,12 +1,8 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
-from mongoengine import ListField, StringField
 from .models import Category, WorkingTime, Hospital, Doctor
-from django.http import Http404
 from rest_framework import serializers
-import json
 from django.conf import settings
-from rest_framework import status
-from rest_framework.response import Response
+from mongoengine.errors import DoesNotExist
 
 class CategorySerializer(DocumentSerializer):
     files = serializers.SerializerMethodField(required=False)
@@ -43,8 +39,7 @@ class HospitalSerializer(DocumentSerializer):
                 # Handle case where request is not available
                 return settings.MEDIA_URL + 'uploaded_files/' + files_url
         return None
-
-    
+      
     class Meta:
         model = Hospital
         fields = '__all__'

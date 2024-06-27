@@ -1,5 +1,5 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
-from .models import Favorite, Location
+from .models import Favorite, Location, Review
 
 class FavoriteSerializer(DocumentSerializer):
     class Meta:
@@ -9,4 +9,9 @@ class FavoriteSerializer(DocumentSerializer):
 class LocationSerializer(DocumentSerializer):
     class Meta:
         model = Location
+        fields = '__all__'
+
+class ReviewSerializer(DocumentSerializer):
+    class Meta:
+        model = Review
         fields = '__all__'
