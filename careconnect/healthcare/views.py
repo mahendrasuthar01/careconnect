@@ -37,7 +37,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             if files:
                 file_url = self.save_file(files)
             else:
-                file_url = ""
+                file_url = None
 
             Category.objects.create(
                 name=name,
@@ -46,7 +46,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
             )
 
             response_data = serializer.data
-            response_data['files'] = request.build_absolute_uri(f'/{file_url}')
+            response_data['files'] = None
+
+            if file_url is not None:
+                response_data['files'] = request.build_absolute_uri(f'/{file_url}')
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
@@ -88,6 +91,8 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
     permission_classes = [AllowAny]
+    def get_queryset(self):
+        return Hospital.objects.all()
 
     def get_queryset(self):
         return Hospital.objects.all()

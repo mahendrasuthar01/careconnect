@@ -24,6 +24,13 @@ class AppointmentViewset(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [AllowAny]
 
+    # http://127.0.0.1:8000/appointments/appointments/?doctor_id=667ac517e10c5c23626764a6
+    def get_queryset(self):
+        doctor_id = self.request.query_params.get('doctor_id')
+        if doctor_id:
+            return Appointment.objects.filter(doctor_id=doctor_id)
+        return self.queryset
+
     def destroy(self, request, *args, **kwargs):
         try:
             appointment = self.get_object()
