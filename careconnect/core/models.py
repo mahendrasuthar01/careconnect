@@ -28,7 +28,10 @@ class Location(Document):
 
 class Review(Document):
     entity_id = StringField(max_length=255, required=True)
+    entity_type = IntField(max_length=100, choices=
+        [(1, "Doctor"),
+        (2, "Hospital")])
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
     rating = FloatField(default=0.0, min_value=0.0, max_value=5.0)    
     description = StringField(required=False)
-    add_image = StringField(required=False)
+    files = StringField(required=False)
