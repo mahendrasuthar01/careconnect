@@ -1,4 +1,4 @@
-from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField
+from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField, FloatField
 from accounts.models import User
 from constant import EntityChoices
 
@@ -25,3 +25,10 @@ class Location(Document):
     city = StringField(max_length=255, required=True)
     state = StringField(max_length=255, required=True)
     country = StringField(max_length=255, required=True)
+
+class Review(Document):
+    entity_id = StringField(max_length=255, required=True)
+    user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
+    rating = FloatField(default=0.0, min_value=0.0, max_value=5.0)    
+    description = StringField(required=False)
+    add_image = StringField(required=False)

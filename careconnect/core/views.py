@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
-from .serializers import FavoriteSerializer, LocationSerializer
+from .serializers import FavoriteSerializer, LocationSerializer, ReviewSerializer
 from rest_framework.permissions import AllowAny
-from .models import Favorite, Location
+from .models import Favorite, Location, Review
 from rest_framework.response import Response
+import os
+from django.conf import settings
 
 # Create your views here.
 class FavoriteViewSet(viewsets.ModelViewSet):
@@ -32,3 +34,5 @@ class LocationViewSet(viewsets.ModelViewSet):
             return Response({"message":"Location deleted sucessfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error":"Location not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
