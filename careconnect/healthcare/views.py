@@ -6,11 +6,11 @@ from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSeri
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 import os
-from django.utils import timezone
+from mongoengine.errors import DoesNotExist
+from django.http import Http404
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
     permission_classes = [AllowAny]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -91,12 +91,14 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
     permission_classes = [AllowAny]
-    def get_queryset(self):
-        return Hospital.objects.all()
+    queryset = Hospital.objects.all()
 
     def get_queryset(self):
-        return Hospital.objects.all()
-
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            return Hospital.objects.filter(category_id=category_id)
+        return self.queryset
+    
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_files', file.name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -132,7 +134,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response({"message": "Hospital deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Hospital not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+
     
 class DoctorViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorSerializer
