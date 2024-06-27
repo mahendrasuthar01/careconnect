@@ -12,6 +12,9 @@ class DoctorPackageSerializer(DocumentSerializer):
     
 
 class AppointmentSerializer(DocumentSerializer):
+    doctor_id = serializers.StringRelatedField(source='doctor_id.id', read_only=True)
+    booking_id = serializers.CharField(read_only=True)
+    
     class Meta:
         model = Appointment
         fields = '__all__'
