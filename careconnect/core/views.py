@@ -36,20 +36,3 @@ class LocationViewSet(viewsets.ModelViewSet):
             return Response({"error":"Location not found"}, status=status.HTTP_404_NOT_FOUND)
         
 
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        return Review.objects.all()
-    
-    def save_file(self, file):
-        file_path = os.path.join(settings.MEDIA_ROOT, 'review_files', file.name)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
-        return 'media/review_files/' + file.name
-    
-    def create(self, request, *args, **kwargs):
-        serializer = self

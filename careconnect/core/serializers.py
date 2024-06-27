@@ -11,7 +11,3 @@ class LocationSerializer(DocumentSerializer):
         model = Location
         fields = '__all__'
 
-class ReviewSerializer(DocumentSerializer):
-    class Meta:
-        model = Review
-        fields = '__all__'
