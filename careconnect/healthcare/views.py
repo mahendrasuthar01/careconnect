@@ -91,8 +91,11 @@ class HospitalViewSet(viewsets.ModelViewSet):
     queryset = Hospital.objects.all()
 
     def get_queryset(self):
-        return Hospital.objects.all()
-
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            return Hospital.objects.filter(category_id=category_id)
+        return self.queryset
+    
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_files', file.name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -128,16 +131,6 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response({"message": "Hospital deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Hospital not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-
-    @action(detail=False, methods=['get'], url_path='by-category/(?P<category_id>[^/.]+)')
-    def get_by_category(self, request, category_id=None):
-        try:
-            hospitals = Hospital.objects.filter(category_id=category_id)
-            serializer = self.get_serializer(hospitals, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except DoesNotExist:
-            raise Http404("No hospitals found for this category")
 
     
 class DoctorViewSet(viewsets.ModelViewSet):
