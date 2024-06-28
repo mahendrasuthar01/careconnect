@@ -5,6 +5,8 @@ from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSeri
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 import os
+from core.models import Review
+from rest_framework.decorators import action
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -130,6 +132,19 @@ class HospitalViewSet(viewsets.ModelViewSet):
             return Response({"message": "Hospital deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Hospital not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    @action(detail=False, methods=['get'])
+    def total_review_count(self, request):
+        hospitals = self.get_queryset()
+        data = []
+        for hospital in hospitals:
+            review_count = Review.objects.filter(entity_id=str(hospital.id), entity_type=2).count()
+            data.append({
+                'hospital_id': str(hospital.id),
+                'hospital_name': hospital.name,
+                'review_count': review_count
+            })
+        return Response(data)
 
     
 class DoctorViewSet(viewsets.ModelViewSet):
@@ -178,3 +193,17 @@ class DoctorViewSet(viewsets.ModelViewSet):
             return Response({"message": "Doctor deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+    @action(detail=False, methods=['get'])
+    def total_review_count(self, request):
+        doctors = self.get_queryset()
+        data = []
+        for doctor in doctors:
+            review_count = Review.objects.filter(entity_id=str(doctor.id), entity_type=1).count()
+            data.append({
+                'doctor_id': str(doctor.id),
+                'doctor_name': doctor.name,
+                'review_count': review_count
+            })
+        return Response(data)
