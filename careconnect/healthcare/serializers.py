@@ -2,7 +2,6 @@ from rest_framework_mongoengine.serializers import DocumentSerializer
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework import serializers
 from django.conf import settings
-from mongoengine.errors import DoesNotExist
 
 class CategorySerializer(DocumentSerializer):
     files = serializers.SerializerMethodField(required=False)

@@ -1,14 +1,10 @@
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
 from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 import os
-from mongoengine.errors import DoesNotExist
-from django.http import Http404
-
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -139,11 +135,14 @@ class HospitalViewSet(viewsets.ModelViewSet):
 class DoctorViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
+    queryset = Doctor.objects.all()
 
     def get_queryset(self):
-        return Doctor.objects.all()
+        hospital_id = self.request.query_params.get('hospital_id')
+        if hospital_id:
+            return Doctor.objects.filter(hospital_id=hospital_id)
+        return self.queryset
     
-
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'doctors_files', file.name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
