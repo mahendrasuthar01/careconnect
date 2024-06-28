@@ -7,6 +7,7 @@ from django.conf import settings
 import os
 from core.models import Review
 from rest_framework.decorators import action
+from appointments.models import Appointment
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -152,12 +153,26 @@ class DoctorViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     queryset = Doctor.objects.all()
 
+    # def get_queryset(self):
+    #     hospital_id = self.request.query_params.get('hospital_id')
+    #     if hospital_id:
+    #         return Doctor.objects.filter(hospital_id=hospital_id)
+    #     return self.queryset
+
+
     def get_queryset(self):
+        queryset = self.queryset
         hospital_id = self.request.query_params.get('hospital_id')
+        speciality_id = self.request.query_params.get('speciality_id')
+
         if hospital_id:
-            return Doctor.objects.filter(hospital_id=hospital_id)
-        return self.queryset
+            queryset = queryset.filter(hospital_id=hospital_id)
+        if speciality_id:
+            queryset = queryset.filter(speciality_id=speciality_id)
+            
+        return queryset
     
+        
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'doctors_files', file.name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -205,5 +220,19 @@ class DoctorViewSet(viewsets.ModelViewSet):
                 'doctor_id': str(doctor.id),
                 'doctor_name': doctor.name,
                 'review_count': review_count
+            })
+        return Response(data)
+    
+
+    @action(detail=False, methods=['get'])
+    def total_patients_count(self, request):
+        doctors = self.get_queryset()
+        data = []
+        for doctor in doctors:
+            patient_count = Appointment.objects.filter(doctor_id=str(doctor.id)).count()
+            data.append({
+                'doctor_id': str(doctor.id),
+                'doctor_name': doctor.name,
+                'patient_count': patient_count
             })
         return Response(data)

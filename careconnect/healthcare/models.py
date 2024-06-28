@@ -61,7 +61,7 @@ class Hospital(Document):
 class Doctor(Document):
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE, max_length=255, required=True)
     name = StringField(max_length=255, required=True)
-    speciality_id = StringField(max_length=255)
+    speciality_id = ReferenceField(Category, reverse_delete_rule=CASCADE, max_length=255, required=True)
     working_time_id = ReferenceField(WorkingTime, reverse_delete_rule=CASCADE, max_length=255)
     about = StringField() 
     location_id = StringField(max_length=255)
