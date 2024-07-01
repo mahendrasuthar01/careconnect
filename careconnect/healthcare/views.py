@@ -8,6 +8,7 @@ import os
 from core.models import Review
 from rest_framework.decorators import action
 from appointments.models import Appointment
+from constant import EntityChoices 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -139,7 +140,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
         hospitals = self.get_queryset()
         data = []
         for hospital in hospitals:
-            review_count = Review.objects.filter(entity_id=str(hospital.id), entity_type=2).count()
+            review_count = Review.objects.filter(entity_id=str(hospital.id), entity_type=EntityChoices.HOSPITAL[0]).count()
             data.append({
                 'hospital_id': str(hospital.id),
                 'hospital_name': hospital.name,
@@ -152,12 +153,6 @@ class DoctorViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
     queryset = Doctor.objects.all()
-
-    # def get_queryset(self):
-    #     hospital_id = self.request.query_params.get('hospital_id')
-    #     if hospital_id:
-    #         return Doctor.objects.filter(hospital_id=hospital_id)
-    #     return self.queryset
 
 
     def get_queryset(self):
@@ -214,13 +209,20 @@ class DoctorViewSet(viewsets.ModelViewSet):
     def total_review_count(self, request):
         doctors = self.get_queryset()
         data = []
+
         for doctor in doctors:
-            review_count = Review.objects.filter(entity_id=str(doctor.id), entity_type=1).count()
-            data.append({
-                'doctor_id': str(doctor.id),
-                'doctor_name': doctor.name,
-                'review_count': review_count
-            })
+            doctor_id = str(doctor.id)
+            
+            try:
+                review_count = Review.objects.filter(entity_id=doctor_id, entity_type=EntityChoices.DOCTOR[0]).count()
+                data.append({
+                    'doctor_id': doctor_id,
+                    'doctor_name': doctor.name,
+                    'review_count': review_count
+                })
+            except Exception as e:
+                return Response({'error': str(e)}, status=500)
+
         return Response(data)
     
 
