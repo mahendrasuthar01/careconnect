@@ -9,6 +9,7 @@ from core.models import Review
 from rest_framework.decorators import action
 from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
+from django.shortcuts import get_object_or_404
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -203,6 +204,22 @@ class DoctorViewSet(viewsets.ModelViewSet):
             return Response({"message": "Doctor deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        speciality_data = {
+            'id': str(instance.speciality_id.id), 
+            'name': instance.speciality_id.name,
+            'description': instance.speciality_id.description
+        }
+        
+        serializer = self.serializer_class(instance)
+        serializer_data = serializer.data
+        
+        serializer_data['speciality'] = speciality_data
+        
+        return Response(serializer_data, status=status.HTTP_200_OK)
         
 
     @action(detail=False, methods=['get'])
