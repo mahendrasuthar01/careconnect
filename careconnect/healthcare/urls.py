@@ -13,5 +13,5 @@ router.register(r'doctors', DoctorViewSet, basename='doctor')
 
 urlpatterns = [
     path('', include(router.urls)),    
-    path('combined/', CombinedDoctorsHospitalsListView.as_view(), name='combined-list'),
+    path('doctor-hospital-combined-list/', CombinedDoctorsHospitalsListView.as_view(), name='combined-list'),
 ]

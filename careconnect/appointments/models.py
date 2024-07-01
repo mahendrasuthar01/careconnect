@@ -9,10 +9,10 @@ import string
 
 
 class PackageChoice:
-    MESSAGING = 'messaging'
-    VOICE_CALL = 'voice_call'
-    VIDEO_CALL = 'video_call'
-    IN_PERSON = 'in_person'
+    MESSAGING = 1
+    VOICE_CALL = 2
+    VIDEO_CALL = 3
+    IN_PERSON = 4
     CHOICES = [
         (MESSAGING, 'Messaging'),
         (VOICE_CALL, 'Voice Call'),
@@ -22,9 +22,9 @@ class PackageChoice:
 
 
 class AppointmentStatusChoice:
-    UPCOMING = 'upcoming'
-    COMPLETED = 'completed'
-    CANCELLED = 'canceled'
+    UPCOMING = 1
+    COMPLETED = 2
+    CANCELLED = 3
     CHOICES = [
         (UPCOMING, 'Upcoming'),
         (COMPLETED, 'Completed'),

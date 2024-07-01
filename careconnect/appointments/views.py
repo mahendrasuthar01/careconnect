@@ -1,5 +1,5 @@
-from .models import DoctorPackage, Appointment, AppointmentStatusChoice
-from .serializers import DoctorPackageSerializer, AppointmentSerializer, AppointmentCancellationSerializer
+from .models import DoctorPackage, Appointment
+from .serializers import DoctorPackageSerializer, AppointmentSerializer
 from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
