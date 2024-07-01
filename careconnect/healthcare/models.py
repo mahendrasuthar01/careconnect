@@ -42,7 +42,7 @@ class WorkingTime(Document):
 class Hospital(Document):
     category_id = ReferenceField(Category, reverse_delete_rule=CASCADE, max_length=255, required=True)
     name = StringField(max_length=255, required=True)
-    review_id = ReferenceField(Review, reverse_delete_rule=CASCADE, max_length=255)
+    review_id = StringField()
     website = URLField(max_length=200, blank=True, null=True)
     phone_number = StringField(max_length=10, required=True)
     email = EmailField(max_length=254, required=True)
