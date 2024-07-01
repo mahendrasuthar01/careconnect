@@ -7,6 +7,7 @@ from rest_framework.response import Response
 import os
 from django.conf import settings
 from healthcare.models import Doctor, Hospital
+from healthcare.serializers import HospitalSerializer, DoctorSerializer
 
 # Create your views here.
 class FavoriteViewSet(viewsets.ModelViewSet):
@@ -28,31 +29,39 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                 if doctor:
                     doctor.is_favorite = not doctor.is_favorite
                     doctor.save()
+                    if not doctor.is_favorite:
+                        favorite.delete()
+                        return Response({"message": "Favorite item removed successfully"}, status=status.HTTP_200_OK)
             elif entity_type == 2:  # Hospital
                 hospital = Hospital.objects.filter(id=entity_id).first()
                 if hospital:
                     hospital.is_favorite = not hospital.is_favorite
                     hospital.save()
-            
-            favorite.delete()
-            return Response({"message": "Favorite item removed successfully"}, status=status.HTTP_200_OK)
+                    if not hospital.is_favorite:
+                        favorite.delete()
+                        return Response({"message": "Favorite item removed successfully"}, status=status.HTTP_200_OK)
         
-        # Create new favorite and set is_favorite field
-        favorite = Favorite(user_id=user_id, entity_id=entity_id, entity_type=entity_type)
-        favorite.save()
+        else:
+            # Create new favorite and set is_favorite field
+            favorite = Favorite(user_id=user_id, entity_id=entity_id, entity_type=entity_type)
+            favorite.save()
 
-        if entity_type == 1:  # Doctor
-            doctor = Doctor.objects.filter(id=entity_id).first()
-            if doctor:
-                doctor.is_favorite = True
-                doctor.save()
-        elif entity_type == 2:  # Hospital
-            hospital = Hospital.objects.filter(id=entity_id).first()
-            if hospital:
-                hospital.is_favorite = True
-                hospital.save()
+            if entity_type == 1:  # Doctor
+                doctor = Doctor.objects.filter(id=entity_id).first()
+                if doctor:
+                    doctor.is_favorite = True
+                    doctor.save()
+                    serializer = DoctorSerializer(doctor)
+                    return Response({"message": "Favorite item added successfully", "Doctor data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
+            elif entity_type == 2:  # Hospital
+                hospital = Hospital.objects.filter(id=entity_id).first()
+                if hospital:
+                    hospital.is_favorite = True
+                    hospital.save()
+                    serializer = HospitalSerializer(hospital)
+                    return Response({"message": "Favorite item added successfully", "Hospital data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
 
-        return Response({"message": "Favorite item added successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
           
 class LocationViewSet(viewsets.ModelViewSet):

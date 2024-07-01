@@ -48,5 +48,14 @@ class EntityChoices:
         (DOCTOR, "Doctor"),
         (HOSPITAL, "Hospital")
     ]
+    
+DOCTOR = 1,
+HOSPITAL = 2,
+
+entity_type_choices = (
+    (DOCTOR, "Doctor"),
+    (HOSPITAL, "Hospital")
+)
+
 
 
