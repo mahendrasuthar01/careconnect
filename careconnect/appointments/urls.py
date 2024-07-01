@@ -8,4 +8,5 @@ router.register(r'appointments', AppointmentViewset, basename='appointments')
 
 urlpatterns = [
     path('', include(router.urls)),
+    # path('<str:appointment_id>/cancel/', AppointmentCancellationView.as_view(), name='appointment_cancellation'),
 ]

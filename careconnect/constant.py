@@ -1,4 +1,4 @@
-from healthcare.models import WorkingTime
+import healthcare.models
 
 
 class WorkingTimeManager:
@@ -30,7 +30,7 @@ class WorkingTimeManager:
             start_time = default_times.get(day_name, '09:00')
             end_time = default_times.get(day_name, '17:00')
 
-            working_time = WorkingTime.objects.create(
+            working_time = healthcare.models.WorkingTime.objects.create(
                 entity_id=entity_id,
                 entity_type=entity_type,
                 day=day,

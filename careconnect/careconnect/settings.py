@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
 
 JWT_SECRET_KEY = 'your_jwt_secret_key'
 JWT_ALGORITHM = 'HS256'
-JWT_EXPIRATION_DELTA = 3600 
+JWT_EXPIRATION_DELTA = 28800  # 8 hours
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
