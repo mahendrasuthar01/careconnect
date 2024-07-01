@@ -38,7 +38,6 @@ class HospitalSerializer(DocumentSerializer):
             if request:
                 return request.build_absolute_uri(settings.MEDIA_URL + 'uploaded_files/' + files_url)
             else:
-                # Handle case where request is not available
                 return settings.MEDIA_URL + 'uploaded_files/' + files_url
         return None
       
@@ -57,7 +56,6 @@ class DoctorSerializer(DocumentSerializer):
             if request:
                 return request.build_absolute_uri(settings.MEDIA_URL + 'uploaded_files/' + files_url)
             else:
-                # Handle case where request is not available
                 return settings.MEDIA_URL + 'uploaded_files/' + files_url
         return None
 
@@ -65,27 +63,30 @@ class DoctorSerializer(DocumentSerializer):
         model = Doctor
         fields = '__all__'
 
-from rest_framework_mongoengine.serializers import DocumentSerializer
-from rest_framework import serializers
 
 class HospitalCardSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Hospital
-        fields = ['name', 'files', 'location_id', 'average_rating']
+        fields = ['name', 'files', 'location_id', 'average_rating', 'review_count']
 
     def get_average_rating(self, obj):
         return getattr(obj, 'average_rating', 0.0)
-    
+
+    def get_review_count(self, obj):
+        return getattr(obj, 'review_count', 0)
 
 class DoctorCardSerializer(DocumentSerializer):
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
+    speciality = CategorySerializer(source='speciality_id')
 
     class Meta:
         model = Doctor
-        fields = ['name', 'speciality_id', 'files', 'is_favorite', 'location_id', 'review_count', 'average_rating']
+        fields = ['name', 'speciality_id', 'files', 'is_favorite', 
+                  'location_id', 'review_count', 'average_rating', 'speciality']
 
     def get_review_count(self, obj):
         return getattr(obj, 'review_count', 0)

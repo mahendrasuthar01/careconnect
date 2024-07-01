@@ -10,7 +10,6 @@ class Category(Document):
     name = StringField(max_length=100, unique=True)
     description = StringField(max_length=500, blank=True, null=True)
     files = StringField()
-    # file_path = URLField(blank=True, null=True)
 
     def __str__(self):
         return self.name

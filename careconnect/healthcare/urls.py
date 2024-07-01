@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import CategoryViewSet, WorkingTimeViewSet, HospitalViewSet, DoctorViewSet, CombinedListView
+from .views import CategoryViewSet, WorkingTimeViewSet, HospitalViewSet, DoctorViewSet, CombinedDoctorsHospitalsListView
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,5 +13,5 @@ router.register(r'doctors', DoctorViewSet, basename='doctor')
 
 urlpatterns = [
     path('', include(router.urls)),    
-    path('combined/', CombinedListView.as_view(), name='combined-list'),
+    path('combined/', CombinedDoctorsHospitalsListView.as_view(), name='combined-list'),
 ]
