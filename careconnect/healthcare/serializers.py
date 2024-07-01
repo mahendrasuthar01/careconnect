@@ -2,6 +2,9 @@ from rest_framework_mongoengine.serializers import DocumentSerializer
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework import serializers
 from django.conf import settings
+from core.models import Review
+from django.db.models import Avg
+
 
 class CategorySerializer(DocumentSerializer):
     files = serializers.SerializerMethodField(required=False)
@@ -61,3 +64,31 @@ class DoctorSerializer(DocumentSerializer):
     class Meta:
         model = Doctor
         fields = '__all__'
+
+from rest_framework_mongoengine.serializers import DocumentSerializer
+from rest_framework import serializers
+
+class HospitalCardSerializer(DocumentSerializer):
+    average_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Hospital
+        fields = ['name', 'files', 'location_id', 'average_rating']
+
+    def get_average_rating(self, obj):
+        return getattr(obj, 'average_rating', 0.0)
+    
+
+class DoctorCardSerializer(DocumentSerializer):
+    review_count = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Doctor
+        fields = ['name', 'speciality_id', 'files', 'is_favorite', 'location_id', 'review_count', 'average_rating']
+
+    def get_review_count(self, obj):
+        return getattr(obj, 'review_count', 0)
+
+    def get_average_rating(self, obj):
+        return getattr(obj, 'average_rating', 0.0)

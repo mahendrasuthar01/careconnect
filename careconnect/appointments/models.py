@@ -24,11 +24,11 @@ class PackageChoice:
 class AppointmentStatusChoice:
     UPCOMING = 'upcoming'
     COMPLETED = 'completed'
-    CANCELED = 'canceled'
+    CANCELLED = 'canceled'
     CHOICES = [
         (UPCOMING, 'Upcoming'),
         (COMPLETED, 'Completed'),
-        (CANCELED, 'Cancelled')
+        (CANCELLED, 'Cancelled')
     ]
 
 
@@ -48,6 +48,7 @@ class Appointment(Document):
     time = StringField(required=True)
     confirm = BooleanField(default=False)
     status = StringField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
+    cancellation_reason = StringField(max_length=500)
 
     @property
     def doctor(self):

@@ -1,7 +1,8 @@
-from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField, BooleanField
+from mongoengine import Document, StringField, URLField, EmailField, ReferenceField, CASCADE, IntField, BooleanField, FloatField
 from django.db import models
 from django.utils import timezone
 from accounts.models import User
+from core.models import Review, Location
 import os
 # Create your models here.
 
@@ -42,7 +43,7 @@ class WorkingTime(Document):
 class Hospital(Document):
     category_id = ReferenceField(Category, reverse_delete_rule=CASCADE, max_length=255, required=True)
     name = StringField(max_length=255, required=True)
-    review_id = StringField(max_length=255)
+    review_id = ReferenceField(Review, reverse_delete_rule=CASCADE, max_length=255)
     website = URLField(max_length=200, blank=True, null=True)
     phone_number = StringField(max_length=10, required=True)
     email = EmailField(max_length=254, required=True)
@@ -69,7 +70,7 @@ class Doctor(Document):
     is_favorite = BooleanField(default=False)
     total_experience = IntField()
     total_patients = IntField()
-    review_id = StringField(max_length=255)
+    review_id = StringField()
     hospital_id = ReferenceField(Hospital, reverse_delete_rule=CASCADE, max_length=255)
     files = StringField()
 
