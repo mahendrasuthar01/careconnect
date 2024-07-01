@@ -8,7 +8,7 @@ import os
 from core.models import Review
 from rest_framework.decorators import action
 from appointments.models import Appointment
-from constant import EntityChoices 
+from constant import DOCTOR, HOSPITAL
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -140,7 +140,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
         hospitals = self.get_queryset()
         data = []
         for hospital in hospitals:
-            review_count = Review.objects.filter(entity_id=str(hospital.id), entity_type=EntityChoices.HOSPITAL[0]).count()
+            review_count = Review.objects.filter(entity_id=str(hospital.id), entity_type=HOSPITAL[0]).count()
             data.append({
                 'hospital_id': str(hospital.id),
                 'hospital_name': hospital.name,
@@ -214,7 +214,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
             doctor_id = str(doctor.id)
             
             try:
-                review_count = Review.objects.filter(entity_id=doctor_id, entity_type=EntityChoices.DOCTOR[0]).count()
+                review_count = Review.objects.filter(entity_id=doctor_id, entity_type=DOCTOR[0]).count()
                 data.append({
                     'doctor_id': doctor_id,
                     'doctor_name': doctor.name,
