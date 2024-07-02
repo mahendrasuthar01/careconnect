@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 # Create your views here.
 class DoctorPackageViewset(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
-    queryset = DoctorPackage.objects.all()
     serializer_class = DoctorPackageSerializer
+    queryset = DoctorPackage.objects.all()
 
     def destroy(self, request, *args, **kwargs):
         try:
@@ -26,7 +26,7 @@ class AppointmentViewset(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     permission_classes = [AllowAny]
 
-    # http://127.0.0.1:8000/appointments/appointments/?doctor_id=667ac517e10c5c23626764a6
+
     def get_queryset(self):
         doctor_id = self.request.query_params.get('doctor_id')
         if doctor_id:

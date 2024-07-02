@@ -6,7 +6,7 @@ from django.conf import settings
 class FavoriteSerializer(DocumentSerializer):
     class Meta:
         model = Favorite
-        fields = ['entity_id', 'entity_type', 'user_id']
+        fields = ['entity_id', 'entity_type']
 
 class LocationSerializer(DocumentSerializer):
     class Meta:

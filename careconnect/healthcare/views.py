@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
 from rest_framework.views import APIView
-from collections import defaultdict
+from .utils import get_reviews_data
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -162,10 +162,23 @@ class DoctorViewSet(viewsets.ModelViewSet):
         hospital_id = self.request.query_params.get('hospital_id')
         speciality_id = self.request.query_params.get('speciality_id')
 
+        # print("==============", hospital_id, speciality_id)
+
         if hospital_id:
             queryset = queryset.filter(hospital_id=hospital_id)
         if speciality_id:
             queryset = queryset.filter(speciality_id=speciality_id)
+
+        doctor_ids = [str(doctor.id) for doctor in queryset]
+        reviews_data = get_reviews_data(doctor_ids, 1)
+
+        for doctor in queryset:
+            doctor_id = str(doctor.id)
+            doctor.doctor_id = doctor_id
+            doctor.review_count = reviews_data.get(doctor_id, {}).get('review_count', 0)
+            doctor.average_rating = reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
+
+        print("================" ,queryset)
             
         return queryset
     
@@ -275,11 +288,13 @@ class CombinedDoctorsHospitalsListView(APIView):
 
         for doctor in doctors:
             doctor_id = str(doctor.id)
+            doctor.doctor_id = doctor_id
             doctor.review_count = doctor_reviews_data.get(doctor_id, {}).get('review_count', 0)
             doctor.average_rating = doctor_reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
 
         for hospital in hospitals:
             hospital_id = str(hospital.id)
+            hospital.hospital_id = hospital_id
             hospital.review_count = hospital_reviews_data.get(hospital_id, {}).get('review_count', 0)
             hospital.average_rating = hospital_reviews_data.get(hospital_id, {}).get('average_rating', 0.0)
 
@@ -292,21 +307,3 @@ class CombinedDoctorsHospitalsListView(APIView):
         }
 
         return Response(combined_data, status=status.HTTP_200_OK)
-    
-    
-def get_reviews_data(entity_ids, entity_type):
-
-    reviews = Review.objects.filter(entity_id__in=entity_ids, entity_type=entity_type)
-
-    review_data = defaultdict(lambda: {'review_count': 0, 'average_rating': 0.0})
-
-    for review in reviews:
-        entity_id = str(review.entity_id)
-        review_data[entity_id]['review_count'] += 1
-        review_data[entity_id]['average_rating'] += review.rating
-
-    for entity_id, data in review_data.items():
-        if data['review_count'] > 0:
-            data['average_rating'] /= data['review_count']
-
-    return review_data
