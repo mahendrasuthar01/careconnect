@@ -1,17 +1,14 @@
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions, status, serializers
+from rest_framework import viewsets, permissions, status
 from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer, DoctorCardSerializer, HospitalCardSerializer
 from rest_framework.permissions import AllowAny
 from django.conf import settings
-from django.db.models import Avg
 import os
 from core.models import Review
 from rest_framework.decorators import action
 from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
-from django.shortcuts import get_object_or_404
-from constant import EntityChoices 
 from rest_framework.views import APIView
 from collections import defaultdict
 
@@ -295,6 +292,8 @@ class CombinedDoctorsHospitalsListView(APIView):
         }
 
         return Response(combined_data, status=status.HTTP_200_OK)
+    
+    
 def get_reviews_data(entity_ids, entity_type):
 
     reviews = Review.objects.filter(entity_id__in=entity_ids, entity_type=entity_type)
