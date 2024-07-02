@@ -9,10 +9,10 @@ import string
 
 
 class PackageChoice:
-    MESSAGING = 'messaging'
-    VOICE_CALL = 'voice_call'
-    VIDEO_CALL = 'video_call'
-    IN_PERSON = 'in_person'
+    MESSAGING = 1
+    VOICE_CALL = 2
+    VIDEO_CALL = 3
+    IN_PERSON = 4
     CHOICES = [
         (MESSAGING, 'Messaging'),
         (VOICE_CALL, 'Voice Call'),
@@ -22,13 +22,13 @@ class PackageChoice:
 
 
 class AppointmentStatusChoice:
-    UPCOMING = 'upcoming'
-    COMPLETED = 'completed'
-    CANCELED = 'canceled'
+    UPCOMING = 1
+    COMPLETED = 2
+    CANCELLED = 3
     CHOICES = [
         (UPCOMING, 'Upcoming'),
         (COMPLETED, 'Completed'),
-        (CANCELED, 'Cancelled')
+        (CANCELLED, 'Cancelled')
     ]
 
 
@@ -48,6 +48,7 @@ class Appointment(Document):
     time = StringField(required=True)
     confirm = BooleanField(default=False)
     status = StringField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
+    cancellation_reason = StringField(max_length=500)
 
     @property
     def doctor(self):

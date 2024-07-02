@@ -1,15 +1,19 @@
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions, status
-from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer
+from rest_framework import viewsets, permissions, status, serializers
+from .serializers import CategorySerializer, WorkingTimeSerializer, HospitalSerializer, DoctorSerializer, DoctorCardSerializer, HospitalCardSerializer
 from rest_framework.permissions import AllowAny
 from django.conf import settings
+from django.db.models import Avg
 import os
 from core.models import Review
 from rest_framework.decorators import action
 from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
 from django.shortcuts import get_object_or_404
+from constant import EntityChoices 
+from rest_framework.views import APIView
+from collections import defaultdict
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -255,3 +259,55 @@ class DoctorViewSet(viewsets.ModelViewSet):
                 'patient_count': patient_count
             })
         return Response(data)
+
+
+
+class CombinedDoctorsHospitalsListView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        hospitals = list(Hospital.objects.all())
+        doctors = list(Doctor.objects.all())
+
+        
+        doctor_ids = [str(doctor.id) for doctor in doctors]
+        hospital_ids = [str(hospital.id) for hospital in hospitals]
+
+        doctor_reviews_data = get_reviews_data(doctor_ids, 1)
+        hospital_reviews_data = get_reviews_data(hospital_ids, 2)
+
+        for doctor in doctors:
+            doctor_id = str(doctor.id)
+            doctor.review_count = doctor_reviews_data.get(doctor_id, {}).get('review_count', 0)
+            doctor.average_rating = doctor_reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
+
+        for hospital in hospitals:
+            hospital_id = str(hospital.id)
+            hospital.review_count = hospital_reviews_data.get(hospital_id, {}).get('review_count', 0)
+            hospital.average_rating = hospital_reviews_data.get(hospital_id, {}).get('average_rating', 0.0)
+
+        hospital_serializer = HospitalCardSerializer(hospitals, many=True)
+        doctor_serializer = DoctorCardSerializer(doctors, many=True)
+
+        combined_data = {
+            'hospitals': hospital_serializer.data,
+            'doctors': doctor_serializer.data
+        }
+
+        return Response(combined_data, status=status.HTTP_200_OK)
+def get_reviews_data(entity_ids, entity_type):
+
+    reviews = Review.objects.filter(entity_id__in=entity_ids, entity_type=entity_type)
+
+    review_data = defaultdict(lambda: {'review_count': 0, 'average_rating': 0.0})
+
+    for review in reviews:
+        entity_id = str(review.entity_id)
+        review_data[entity_id]['review_count'] += 1
+        review_data[entity_id]['average_rating'] += review.rating
+
+    for entity_id, data in review_data.items():
+        if data['review_count'] > 0:
+            data['average_rating'] /= data['review_count']
+
+    return review_data
