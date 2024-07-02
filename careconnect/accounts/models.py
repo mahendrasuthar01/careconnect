@@ -74,3 +74,4 @@ class Patient(Document):
     gender = StringField(max_length=10, blank=True, null=True)
     age = StringField(max_length=10, blank=True, null=True)
     problem_description = StringField(max_length=500, blank=True, null=True)
+
