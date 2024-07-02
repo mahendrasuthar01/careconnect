@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import viewsets, status
 from .serializers import FavoriteSerializer, LocationSerializer, ReviewSerializer
 from rest_framework.permissions import AllowAny
@@ -8,17 +7,19 @@ import os
 from django.conf import settings
 from healthcare.models import Doctor, Hospital
 from healthcare.serializers import HospitalSerializer, DoctorSerializer
+from accounts.authentication import JWTAuthentication
 
-# Create your views here.
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
     permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication]
     queryset = Favorite.objects.all()
 
     def create(self, request, *args, **kwargs):
-        user_id = request.data.get('user_id')
         entity_id = request.data.get('entity_id')
         entity_type = request.data.get('entity_type')
+        user = JWTAuthentication.get_current_user(self, request)
+        user_id = str(user.id)
 
         # Check if the favorite already exists
         favorite = Favorite.objects.filter(user_id=user_id, entity_id=entity_id, entity_type=entity_type).first()
@@ -80,6 +81,7 @@ class LocationViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [AllowAny]
 
     def get_queryset(self):
