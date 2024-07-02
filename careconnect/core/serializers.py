@@ -6,7 +6,7 @@ from django.conf import settings
 class FavoriteSerializer(DocumentSerializer):
     class Meta:
         model = Favorite
-        fields = '__all__'
+        fields = ['entity_id', 'entity_type', 'user_id']
 
 class LocationSerializer(DocumentSerializer):
     class Meta:
@@ -18,7 +18,7 @@ class ReviewSerializer(DocumentSerializer):
 
     class Meta:
         model = Review
-        fields = '__all__'
+        exclude = ['user_id']
 
     def get_files(self, obj):
         files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
