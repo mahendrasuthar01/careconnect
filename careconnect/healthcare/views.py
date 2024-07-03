@@ -258,7 +258,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-
+from .utils import get_reviews_data
 class CombinedDoctorsHospitalsListView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -275,11 +275,13 @@ class CombinedDoctorsHospitalsListView(APIView):
 
         for doctor in doctors:
             doctor_id = str(doctor.id)
+            doctor.doctor_id = doctor_id
             doctor.review_count = doctor_reviews_data.get(doctor_id, {}).get('review_count', 0)
             doctor.average_rating = doctor_reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
 
         for hospital in hospitals:
             hospital_id = str(hospital.id)
+            hospital.hospital_id = hospital_id
             hospital.review_count = hospital_reviews_data.get(hospital_id, {}).get('review_count', 0)
             hospital.average_rating = hospital_reviews_data.get(hospital_id, {}).get('average_rating', 0.0)
 
@@ -292,21 +294,3 @@ class CombinedDoctorsHospitalsListView(APIView):
         }
 
         return Response(combined_data, status=status.HTTP_200_OK)
-    
-    
-def get_reviews_data(entity_ids, entity_type):
-
-    reviews = Review.objects.filter(entity_id__in=entity_ids, entity_type=entity_type)
-
-    review_data = defaultdict(lambda: {'review_count': 0, 'average_rating': 0.0})
-
-    for review in reviews:
-        entity_id = str(review.entity_id)
-        review_data[entity_id]['review_count'] += 1
-        review_data[entity_id]['average_rating'] += review.rating
-
-    for entity_id, data in review_data.items():
-        if data['review_count'] > 0:
-            data['average_rating'] /= data['review_count']
-
-    return review_data
