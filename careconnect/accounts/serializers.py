@@ -80,7 +80,7 @@ class PatientSerializer(DocumentSerializer):
     user = UserSerializer(source='user_id')
     class Meta:
         model = Patient
-        fields = '__all__'
+        exclude = ['user']
 
     def validate_name(self, value):
         """
@@ -107,25 +107,27 @@ class PatientSerializer(DocumentSerializer):
         user_id = validated_data['user_id']
 
         # Ensure `name` defaults to an empty string if not provided
-        validated_data['name'] = validated_data.get('name', '')
+        validated_data['patient_name'] = validated_data.get('patient_name', '')
 
         if booking_for == 'Self':
-            if Patient.objects(user_id=user_id).first():
-                raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+            # if Patient.objects(user_id=user_id).first():
+            #     raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+
+            user = User.objects.get(id=user_id.id)
             
-            validated_data['name'] = user_id.username if hasattr(user_id, 'username') else ''
-            validated_data['gender'] = user_id.gender if hasattr(user_id, 'gender') else ''
-            validated_data['age'] = user_id.dob if hasattr(user_id, 'dob') else ''
+            validated_data['patient_name'] = user.username if hasattr(user, 'username') else ''
+            validated_data['gender'] = user.gender if hasattr(user, 'gender') else ''
+            validated_data['age'] = user.dob if hasattr(user, 'dob') else ''
 
         else:
-            name = validated_data.get('name', '')
+            validated_data.get('patient_name', '')
 
-            if Patient.objects(
-                booking_for='Other',
-                name=name,
-                user_id=user_id,
-            ).first():
-                raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+            # if Patient.objects(
+            #     booking_for='Other',
+            #     patient_name=patient_name,
+            #     user_id=user_id,
+            # ).first():
+            #     raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
 
         patient = Patient(**validated_data)
         patient.save()
