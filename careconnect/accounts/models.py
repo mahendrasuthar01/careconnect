@@ -17,7 +17,7 @@ class User(Document):
     updated_by = StringField(max_length=100, blank=True, null=True)
     is_active = BooleanField(default=True)
     is_admin = BooleanField(default=False)
-    location = StringField(max_length=100, blank=True, null=True)
+    location = ReferenceField('core.models.Location', max_length=100, blank=True, null=True)
     is_email_verified = BooleanField(default=False)
     otp = StringField(max_length=4, blank=True, null=True)
     otp_expires_at = DateTimeField(blank=True, null=True)
