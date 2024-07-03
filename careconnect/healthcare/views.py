@@ -271,7 +271,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-
+from .utils import get_reviews_data
 class CombinedDoctorsHospitalsListView(APIView):
     permission_classes = [permissions.AllowAny]
 
