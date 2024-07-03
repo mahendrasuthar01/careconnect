@@ -1,8 +1,7 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from rest_framework import serializers
-from .models import User, Patient, BookingForChoices
+from .models import User, Patient
 from .email_utils import EmailUtil
-from django.contrib.auth.models import AnonymousUser
 
 class UserSerializer(DocumentSerializer):
     username = serializers.CharField()

@@ -8,12 +8,19 @@ from django.conf import settings
 from healthcare.models import Doctor, Hospital
 from healthcare.serializers import HospitalSerializer, DoctorSerializer
 from accounts.authentication import JWTAuthentication
+from rest_framework.exceptions import NotFound
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
     permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
     queryset = Favorite.objects.all()
+
+    def update_mongodb(self, entity_type, entity_id, is_favorite):
+        if entity_type == 1:
+            Doctor.objects.filter(id=entity_id).update(is_favorite=is_favorite)
+        elif entity_type == 2: 
+            Hospital.objects.filter(id=entity_id).update(is_favorite=is_favorite)
 
     def create(self, request, *args, **kwargs):
         entity_id = request.data.get('entity_id')
@@ -25,7 +32,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         favorite = Favorite.objects.filter(user_id=user_id, entity_id=entity_id, entity_type=entity_type).first()
         if favorite:
             # Toggle is_favorite field for the corresponding entity
-            if entity_type == 1:  # Doctor
+            if entity_type == 1:
                 doctor = Doctor.objects.filter(id=entity_id).first()
                 if doctor:
                     doctor.is_favorite = not doctor.is_favorite
@@ -33,7 +40,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                     if not doctor.is_favorite:
                         favorite.delete()
                         return Response({"message": "Favorite item removed successfully"}, status=status.HTTP_200_OK)
-            elif entity_type == 2:  # Hospital
+            elif entity_type == 2:
                 hospital = Hospital.objects.filter(id=entity_id).first()
                 if hospital:
                     hospital.is_favorite = not hospital.is_favorite
@@ -47,14 +54,14 @@ class FavoriteViewSet(viewsets.ModelViewSet):
             favorite = Favorite(user_id=user_id, entity_id=entity_id, entity_type=entity_type)
             favorite.save()
 
-            if entity_type == 1:  # Doctor
+            if entity_type == 1:
                 doctor = Doctor.objects.filter(id=entity_id).first()
                 if doctor:
                     doctor.is_favorite = True
                     doctor.save()
                     serializer = DoctorSerializer(doctor)
                     return Response({"message": "Favorite item added successfully", "Doctor data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
-            elif entity_type == 2:  # Hospital
+            elif entity_type == 2:
                 hospital = Hospital.objects.filter(id=entity_id).first()
                 if hospital:
                     hospital.is_favorite = True
@@ -83,9 +90,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [AllowAny]
+    queryset = Review.objects.all()
 
     def get_queryset(self):
-        return Review.objects.all()
+        queryset = self.queryset
+        entity_id = self.request.query_params.get('entity_id')
+        if entity_id:
+            queryset = queryset.filter(entity_type=entity_id)
+        return queryset
     
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'review_files', file.name)
@@ -120,3 +132,37 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return Response({"message": "Review deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+    def get_entity_details(self, review):
+        entity_type = review.entity_type
+        entity_id = review.entity_id
+
+        try:
+            if entity_type == 1:
+                entity = Doctor.objects.get(id=entity_id)
+                serializer = DoctorSerializer(entity)
+            elif entity_type == 2:
+                entity = Hospital.objects.get(id=entity_id)
+                serializer = HospitalSerializer(entity)
+            else:
+                raise NotFound("Entity type not supported")
+
+            return serializer.data
+        except (Doctor.DoesNotExist, Hospital.DoesNotExist):
+            raise NotFound("Entity not found")
+        
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        for review in serializer.data:
+            review['entity_details'] = self.get_entity_details(Review.objects.get(id=review['id']))
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = serializer.data
+        serializer_data['entity_details'] = self.get_entity_details(instance)
+        return Response(serializer_data, status=status.HTTP_200_OK)

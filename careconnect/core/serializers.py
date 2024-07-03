@@ -3,6 +3,7 @@ from .models import Favorite, Location, Review
 from rest_framework import serializers
 from django.conf import settings
 
+
 class FavoriteSerializer(DocumentSerializer):
     class Meta:
         model = Favorite
