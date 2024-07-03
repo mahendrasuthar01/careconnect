@@ -2,7 +2,7 @@ from rest_framework_mongoengine.serializers import DocumentSerializer
 from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework import serializers
 from django.conf import settings
-from .utils import get_entity_reviews
+from .utils import get_entity_reviews, get_hospital_specialists
 
 
 class CategorySerializer(DocumentSerializer):
@@ -28,6 +28,26 @@ class WorkingTimeSerializer(DocumentSerializer):
 
 class HospitalSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
+    calegory = CategorySerializer(source='category_id')
+    working_time = WorkingTimeSerializer(source='working_time_id')
+    review_count = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
+    speciaists = serializers.SerializerMethodField()
+
+    def get_review_count(self, obj):
+        return getattr(obj, 'review_count', 0)
+
+    def get_average_rating(self, obj):
+        return getattr(obj, 'average_rating', 0.0)
+
+    def get_reviews(self, obj):
+        hospital_id = str(obj.id)
+        return get_entity_reviews(hospital_id, 2)
+    
+    def get_speciaists(self, obj):
+        hospital_id = str(obj.id)
+        return get_hospital_specialists(hospital_id)
 
     def get_files(self, obj):
         files_url = obj.get('files') if isinstance(obj, dict) else obj.files
