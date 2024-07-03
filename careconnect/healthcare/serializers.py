@@ -134,3 +134,4 @@ class DoctorCardSerializer(DocumentSerializer):
     
     def get_doctor_id(self, obj):
         return getattr(obj, 'doctor_id', None)
+

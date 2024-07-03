@@ -77,6 +77,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class PatientSerializer(DocumentSerializer):
+    user = UserSerializer(source='user_id')
     class Meta:
         model = Patient
         fields = '__all__'
