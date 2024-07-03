@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
 from datetime import datetime, timedelta
+# from core.models import Location
 
 class User(Document):
     username = StringField(max_length=100)
@@ -69,7 +70,7 @@ class BookingForChoices:
 
 class Patient(Document):
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
-    name = StringField(max_length=100, default='', blank=True, null=True)
+    patient_name = StringField(max_length=100, default='', blank=True, null=True)
     booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='self')
     gender = StringField(max_length=10, blank=True, null=True)
     age = StringField(max_length=10, blank=True, null=True)

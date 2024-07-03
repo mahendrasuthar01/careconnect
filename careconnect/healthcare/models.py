@@ -41,15 +41,13 @@ class WorkingTime(Document):
 
 class Hospital(Document):
     category_id = ReferenceField(Category, reverse_delete_rule=CASCADE, max_length=255, required=True)
-    name = StringField(max_length=255, required=True)
-    review_id = StringField()
+    name = StringField(max_length=255)
     website = URLField(max_length=200, blank=True, null=True)
     phone_number = StringField(max_length=10, required=True)
     email = EmailField(max_length=254, required=True)
     location_id = StringField()
     working_time_id = ReferenceField(WorkingTime, reverse_delete_rule=CASCADE, max_length=255)
     address = StringField(max_length=255, required=True)
-    specialist = StringField(max_length=255, required=True)
     is_favorite = BooleanField(default=False)
     files = StringField()
 
@@ -69,7 +67,6 @@ class Doctor(Document):
     is_favorite = BooleanField(default=False)
     total_experience = IntField()
     total_patients = IntField()
-    # review_id = StringField()
     hospital_id = ReferenceField(Hospital, reverse_delete_rule=CASCADE, max_length=255)
     files = StringField()
 

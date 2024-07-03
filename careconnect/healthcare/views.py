@@ -96,10 +96,25 @@ class HospitalViewSet(viewsets.ModelViewSet):
     queryset = Hospital.objects.all()
 
     def get_queryset(self):
+        queryset = self.queryset       
         category_id = self.request.query_params.get('category_id')
+        working_time_id = self.request.query_params.get('working_time_id')
+        
         if category_id:
-            return Hospital.objects.filter(category_id=category_id)
-        return self.queryset
+            queryset = queryset.filter(category_id=category_id)
+        if working_time_id:
+            queryset = queryset.filter(working_time_id=working_time_id)
+
+        hospital_ids = [str(hospital.id) for hospital in queryset]
+        reviews_data = get_reviews_data(hospital_ids, 0)
+
+        for hospital in queryset:
+            hospital_id = str(hospital.id)
+            hospital.hospital_id = hospital_id
+            hospital.review_count = reviews_data.get(hospital_id, {}).get('review_count', 0)
+            hospital.average_rating = reviews_data.get(hospital_id, {}).get('average_rating', 0.0)
+        
+        return queryset
     
     def save_file(self, file):
         file_path = os.path.join(settings.MEDIA_ROOT, 'uploaded_files', file.name)
@@ -162,8 +177,6 @@ class DoctorViewSet(viewsets.ModelViewSet):
         hospital_id = self.request.query_params.get('hospital_id')
         speciality_id = self.request.query_params.get('speciality_id')
 
-        # print("==============", hospital_id, speciality_id)
-
         if hospital_id:
             queryset = queryset.filter(hospital_id=hospital_id)
         if speciality_id:
@@ -177,8 +190,6 @@ class DoctorViewSet(viewsets.ModelViewSet):
             doctor.doctor_id = doctor_id
             doctor.review_count = reviews_data.get(doctor_id, {}).get('review_count', 0)
             doctor.average_rating = reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
-
-        print("================" ,queryset)
             
         return queryset
     
@@ -271,7 +282,6 @@ class DoctorViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-from .utils import get_reviews_data
 class CombinedDoctorsHospitalsListView(APIView):
     permission_classes = [permissions.AllowAny]
 

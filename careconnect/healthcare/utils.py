@@ -1,6 +1,8 @@
 from collections import defaultdict
 from core.models import Review
+from .models import Doctor
 from core.serializers import ReviewSerializer
+import healthcare.serializers
 
 def get_reviews_data(entity_ids, entity_type):
 
@@ -24,4 +26,8 @@ def get_entity_reviews(entity_id, entity_type):
     serializer = ReviewSerializer(reviews, many=True)
     return serializer.data
 
+def get_hospital_specialists(hospital_id):
+    doctors = Doctor.objects.filter(hospital_id=hospital_id)
+    serializer = healthcare.serializers.DoctorSerializer(doctors, many=True)
+    return serializer.data
 
