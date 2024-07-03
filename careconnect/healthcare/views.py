@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
 from rest_framework.views import APIView
-from collections import defaultdict
+from .utils import get_reviews_data
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -162,10 +162,23 @@ class DoctorViewSet(viewsets.ModelViewSet):
         hospital_id = self.request.query_params.get('hospital_id')
         speciality_id = self.request.query_params.get('speciality_id')
 
+        # print("==============", hospital_id, speciality_id)
+
         if hospital_id:
             queryset = queryset.filter(hospital_id=hospital_id)
         if speciality_id:
             queryset = queryset.filter(speciality_id=speciality_id)
+
+        doctor_ids = [str(doctor.id) for doctor in queryset]
+        reviews_data = get_reviews_data(doctor_ids, 1)
+
+        for doctor in queryset:
+            doctor_id = str(doctor.id)
+            doctor.doctor_id = doctor_id
+            doctor.review_count = reviews_data.get(doctor_id, {}).get('review_count', 0)
+            doctor.average_rating = reviews_data.get(doctor_id, {}).get('average_rating', 0.0)
+
+        print("================" ,queryset)
             
         return queryset
     

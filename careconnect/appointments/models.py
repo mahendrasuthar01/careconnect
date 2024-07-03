@@ -35,8 +35,8 @@ class AppointmentStatusChoice:
 class DoctorPackage(Document):
     doctor_id = ReferenceField(Doctor, reverse_delete_rule=CASCADE, required=True)
     duration = StringField(max_length=100, default='15')
-    package = StringField(max_length=100, choices=PackageChoice.CHOICES)
-    amount = IntField(default=0)
+    package_type = IntField(max_length=100, choices=PackageChoice.CHOICES)
+    amount = IntField(default=20)
 
 
 class Appointment(Document):

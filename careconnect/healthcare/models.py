@@ -69,7 +69,7 @@ class Doctor(Document):
     is_favorite = BooleanField(default=False)
     total_experience = IntField()
     total_patients = IntField()
-    review_id = StringField()
+    # review_id = StringField()
     hospital_id = ReferenceField(Hospital, reverse_delete_rule=CASCADE, max_length=255)
     files = StringField()
 

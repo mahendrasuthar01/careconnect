@@ -60,16 +60,16 @@ class User(Document):
         return False
     
 class BookingForChoices:
-    SELF = 'self'
-    OTHER = 'other'
+    SELF = 'Self'
+    OTHER = 'Other'
     CHOICES = [
         (SELF, 'Self'),
         (OTHER, 'Other'),
     ]
 
 class Patient(Document):
-    user = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
-    name = StringField(max_length=100)
+    user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
+    name = StringField(max_length=100, default='', blank=True, null=True)
     booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='self')
     gender = StringField(max_length=10, blank=True, null=True)
     age = StringField(max_length=10, blank=True, null=True)
