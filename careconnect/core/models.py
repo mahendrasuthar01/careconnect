@@ -1,6 +1,7 @@
-from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField, FloatField
+from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField, FloatField, DateTimeField
 from accounts.models import User
 from constant import EntityChoices
+from datetime import datetime
 
 # Create your models here.
 class Entity(Document):
@@ -35,3 +36,4 @@ class Review(Document):
     rating = FloatField(default=0.0, min_value=0.0, max_value=5.0)    
     description = StringField(required=False)
     files = StringField(required=False)
+    created_at = DateTimeField(default=datetime.utcnow, required=True)

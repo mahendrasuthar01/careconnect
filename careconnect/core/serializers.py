@@ -2,6 +2,7 @@ from rest_framework_mongoengine.serializers import DocumentSerializer
 from .models import Favorite, Location, Review
 from rest_framework import serializers
 from django.conf import settings
+from accounts.serializers import UserSerializer
 
 class FavoriteSerializer(DocumentSerializer):
     class Meta:
@@ -15,10 +16,17 @@ class LocationSerializer(DocumentSerializer):
 
 class ReviewSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
+    user = UserSerializer(source='user_id')
+    created_at_formatted = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         exclude = ['user_id']
+
+    def get_created_at_formatted(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime('%d %b, %Y')
+        return None
 
     def get_files(self, obj):
         files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
