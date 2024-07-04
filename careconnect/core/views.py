@@ -23,11 +23,26 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         elif entity_type == 2: 
             Hospital.objects.filter(id=entity_id).update(is_favorite=is_favorite)
 
+    def is_valid_entity_id(self, entity_type, entity_id):
+        if entity_type == 1:
+            doctor = Doctor.objects.filter(id=entity_id).first()
+            return doctor is not None
+        elif entity_type == 2:
+            hospital = Hospital.objects.filter(id=entity_id).first()
+            return hospital is not None
+        return False
+
     def create(self, request, *args, **kwargs):
         entity_id = request.data.get('entity_id')
         entity_type = request.data.get('entity_type')
         user = JWTAuthentication.get_current_user(self, request)
         user_id = str(user.id)
+
+        if not entity_id or not entity_type:
+            return Response({"error": "Invalid data provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not self.is_valid_entity_id(entity_type, entity_id):
+            return Response({"error": "Invalid entity_id provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if the favorite already exists
         favorite = Favorite.objects.filter(user_id=user_id, entity_id=entity_id, entity_type=entity_type).first()
