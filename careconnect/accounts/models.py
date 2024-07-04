@@ -71,7 +71,7 @@ class BookingForChoices:
 class Patient(Document):
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
     patient_name = StringField(max_length=100, default='', blank=True, null=True)
-    booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='self')
+    booking_for = StringField(max_length=100, choices=BookingForChoices.CHOICES, default='Self')
     gender = StringField(max_length=10, blank=True, null=True)
     age = StringField(max_length=10, blank=True, null=True)
     problem_description = StringField(max_length=500, blank=True, null=True)

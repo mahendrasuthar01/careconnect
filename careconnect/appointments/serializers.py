@@ -1,9 +1,10 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from rest_framework import serializers
 from .models import DoctorPackage, Appointment, AppointmentStatusChoice
-from mongoengine import StringField
+from healthcare.serializers import DoctorSerializer
 
 class DoctorPackageSerializer(DocumentSerializer):
+    doctor = DoctorSerializer(source='doctor_id', read_only=True)
     class Meta:
         model = DoctorPackage
         fields = '__all__'
@@ -14,9 +15,11 @@ class DoctorPackageSerializer(DocumentSerializer):
 
 class AppointmentSerializer(DocumentSerializer):
     doctor_id = serializers.StringRelatedField(source='doctor_id.id', read_only=True)
+    doctor_name = serializers.CharField(source='doctor_id.name', read_only=True)
     booking_id = serializers.CharField(read_only=True)
     created_at_date_formatted = serializers.SerializerMethodField()
     created_at_time_formatted = serializers.SerializerMethodField()
+    patient_name = serializers.CharField(source='patient_id.patient_name', read_only=True)
     
     class Meta:
         model = Appointment

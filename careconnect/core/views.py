@@ -108,12 +108,20 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return 'media/review_files/' + file.name
     
     def create(self, request, *args, **kwargs):
+        user = JWTAuthentication.get_current_user(self, request)
+        user_id = str(user.id)
+        
+        data = request.data
+
+        data['user_id'] = user_id
+
         serializer = self.serializer_class(data=request.data)
+    
         if serializer.is_valid():
             file = request.FILES.get('files', None)
             file_url = self.save_file(file) if file else None
 
-            review = serializer.save(files=file_url)
+            serializer.save(files=file_url)
 
             response_data = serializer.data
             response_data['files'] =  None
