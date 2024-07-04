@@ -69,6 +69,7 @@ class Doctor(Document):
     total_patients = IntField()
     hospital_id = ReferenceField(Hospital, reverse_delete_rule=CASCADE, max_length=255)
     files = StringField()
+    review_id = StringField()
 
     def __str__(self):
         return self.name

@@ -9,6 +9,7 @@ from healthcare.models import Doctor, Hospital
 from healthcare.serializers import HospitalSerializer, DoctorSerializer
 from accounts.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
+from django.shortcuts import get_object_or_404
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
@@ -70,7 +71,43 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                     return Response({"message": "Favorite item added successfully", "Hospital data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
 
         return Response({"message": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get_entity_details(self, favorite):
+        entity_type = favorite.entity_type
+        entity_id = favorite.entity_id
 
+        try:
+            if entity_type == 1:
+                entity = Doctor.objects.get(id=entity_id)
+                serializer = DoctorSerializer(entity)
+            elif entity_type == 2:
+                entity = Hospital.objects.get(id=entity_id)
+                serializer = HospitalSerializer(entity)
+            else:
+                raise NotFound("Entity type not supported")
+
+            return serializer.data
+        except (Doctor.DoesNotExist, Hospital.DoesNotExist):
+            raise NotFound("Entity not found")
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        serialized_data = []
+        for favorite_instance in queryset:
+            serializer = self.get_serializer(favorite_instance)
+            favorite_data = serializer.data
+            favorite_data['entity_details'] = self.get_entity_details(favorite_instance)
+            serialized_data.append(favorite_data)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = serializer.data
+        serializer_data['entity_details'] = self.get_entity_details(instance)
+        return Response(serializer_data, status=status.HTTP_200_OK)
           
 class LocationViewSet(viewsets.ModelViewSet):
     serializer_class = LocationSerializer
