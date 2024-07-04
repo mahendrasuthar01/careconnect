@@ -34,6 +34,7 @@ class HospitalSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
     speciaists = serializers.SerializerMethodField()
+    entity_type = serializers.SerializerMethodField()
 
     def get_review_count(self, obj):
         return getattr(obj, 'review_count', 0)
@@ -48,6 +49,9 @@ class HospitalSerializer(DocumentSerializer):
     def get_speciaists(self, obj):
         hospital_id = str(obj.id)
         return get_hospital_specialists(hospital_id)
+    
+    def get_entity_type(self, obj):
+        return getattr(obj, 'entity_type', 2)
 
     def get_files(self, obj):
         files_url = obj.get('files') if isinstance(obj, dict) else obj.files
@@ -70,6 +74,7 @@ class DoctorSerializer(DocumentSerializer):
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
+    entity_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
@@ -94,7 +99,11 @@ class DoctorSerializer(DocumentSerializer):
 
     def get_reviews(self, obj):
         doctor_id = str(obj.id)
-        return get_entity_reviews(doctor_id, 1)  # Assuming 1 represents the doctor entity type
+        return get_entity_reviews(doctor_id, 1)
+    
+    def get_entity_type(self, obj):
+        return getattr(obj, 'entity_type', 1)
+
 
 
 class HospitalCardSerializer(DocumentSerializer):
