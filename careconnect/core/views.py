@@ -9,14 +9,16 @@ from healthcare.models import Doctor, Hospital
 from healthcare.serializers import HospitalSerializer, DoctorSerializer
 from accounts.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
-from django.shortcuts import get_object_or_404
+from healthcare.utils import get_entity_reviews, get_reviews_data
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
     permission_classes = [AllowAny]
     authentication_classes = [JWTAuthentication]
-    queryset = Favorite.objects.all()
-
+    
+    def get_queryset(self):
+        return Favorite.objects.all()
+    
     def update_mongodb(self, entity_type, entity_id, is_favorite):
         if entity_type == 1:
             Doctor.objects.filter(id=entity_id).update(is_favorite=is_favorite)
@@ -94,14 +96,19 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         try:
             if entity_type == 1:
                 entity = Doctor.objects.get(id=entity_id)
-                serializer = DoctorSerializer(entity)
+                review_data = get_reviews_data([entity_id], entity_type)
+                entity_data = DoctorSerializer(entity).data
             elif entity_type == 2:
                 entity = Hospital.objects.get(id=entity_id)
-                serializer = HospitalSerializer(entity)
+                review_data = get_reviews_data([entity_id], entity_type)
+                entity_data = HospitalSerializer(entity).data
             else:
                 raise NotFound("Entity type not supported")
+            
+            entity_data['review_count'] = review_data[entity_id]['review_count']
+            entity_data['average_rating'] = review_data[entity_id]['average_rating']
 
-            return serializer.data
+            return entity_data
         except (Doctor.DoesNotExist, Hospital.DoesNotExist):
             raise NotFound("Entity not found")
 
