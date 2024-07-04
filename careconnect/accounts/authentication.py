@@ -13,7 +13,6 @@ class JWTAuthentication(BaseAuthentication):
 
         if not token:
             return None
-        print("------------")
         try:
             # Extract the token value (remove 'Bearer ' prefix if present)
             if token.startswith('Bearer '):
