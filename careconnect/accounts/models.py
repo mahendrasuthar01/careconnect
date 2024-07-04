@@ -3,8 +3,6 @@ from mongoengine import Document, StringField, DateField, EmailField, DateTimeFi
 from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
-from datetime import datetime, timedelta
-# from core.models import Location
 
 class User(Document):
     username = StringField(max_length=100)
@@ -22,8 +20,6 @@ class User(Document):
     is_email_verified = BooleanField(default=False)
     otp = StringField(max_length=4, blank=True, null=True)
     otp_expires_at = DateTimeField(blank=True, null=True)
-
-    # objects = UserManager()
 
     @property
     def is_authenticated(self):
