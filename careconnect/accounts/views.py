@@ -10,8 +10,6 @@ from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSe
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 
-from django.db.models import QuerySet 
-
 class UserViewSet(viewsets.ModelViewSet):
 
     """
