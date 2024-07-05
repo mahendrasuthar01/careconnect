@@ -30,6 +30,7 @@ class WorkingTimeSerializer(DocumentSerializer):
 class HospitalSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     calegory = CategorySerializer(source='category_id')
+    location = LocationSerializer(source='location_id')
     working_time = WorkingTimeSerializer(source='working_time_id')
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
@@ -110,7 +111,6 @@ class DoctorSerializer(DocumentSerializer):
 
 class HospitalCardSerializer(DocumentSerializer):
     hospital_id = serializers.SerializerMethodField()
-    location = LocationSerializer(source='location_id')
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
