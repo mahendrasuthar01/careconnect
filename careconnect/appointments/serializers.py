@@ -1,9 +1,10 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from rest_framework import serializers
 from .models import DoctorPackage, Appointment, AppointmentStatusChoice
-from mongoengine import StringField
+from healthcare.serializers import DoctorSerializer
 
 class DoctorPackageSerializer(DocumentSerializer):
+    doctor = DoctorSerializer(source='doctor_id', read_only=True)
     class Meta:
         model = DoctorPackage
         fields = '__all__'
@@ -14,22 +15,51 @@ class DoctorPackageSerializer(DocumentSerializer):
 
 class AppointmentSerializer(DocumentSerializer):
     doctor_id = serializers.StringRelatedField(source='doctor_id.id', read_only=True)
+    doctor_name = serializers.CharField(source='doctor_id.name', read_only=True)
     booking_id = serializers.CharField(read_only=True)
+    created_at_date_formatted = serializers.SerializerMethodField()
+    created_at_time_formatted = serializers.SerializerMethodField()
+    patient_name = serializers.CharField(source='patient_id.patient_name', read_only=True)
     
     class Meta:
         model = Appointment
-        fields = '__all__'
+        exclude = ['cancellation_reason', 'cancellation_time']
 
     def create(self, validated_data):
         return Appointment.objects.create(**validated_data)
     
-class AppointmentCancellationSerializer(serializers.Serializer):
-    cancellation_reason = serializers.CharField(max_length=500)
-    status = StringField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
+    def get_created_at_date_formatted(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime('%d %b, %Y')
+        return None
+        
+    def get_created_at_time_formatted(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime('%I:%M %p')
+        return None
 
-    def validate_status(self, value):
-        if value == AppointmentStatusChoice.CANCELLED:
-            raise serializers.ValidationError("Status cannot be cancelled")
+    
+class AppointmentCancellationSerializer(DocumentSerializer):
+    appointment_id = serializers.CharField(write_only=True)
+    cancellation_reason = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = Appointment
+        exclude = ['doctor_id', 'package_id', 'patient_id', 'booking_id', 'created_at', 'confirm', 'status']
+
+    def validate_appointment_id(self, value):
+        try:
+            appointment = Appointment.objects.get(id=value)
+        except Appointment.DoesNotExist:
+            raise serializers.ValidationError("Appointment not found")
         return value
     
+
+
+    def update(self, instance, validated_data):
+        instance.status = AppointmentStatusChoice.CANCELLED
+        instance.cancellation_reason = validated_data.get('cancellation_reason', instance.cancellation_reason)
+        instance.save()
+        return instance
     
+

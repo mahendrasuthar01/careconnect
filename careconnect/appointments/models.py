@@ -2,9 +2,8 @@ from mongoengine import Document, StringField, IntField, ReferenceField, CASCADE
 from healthcare.models import Doctor
 from accounts.models import Patient
 from mongoengine.signals import pre_save
-from django.dispatch import receiver
-import random
-import string
+import random, string
+from datetime import datetime
 
 
 
@@ -44,11 +43,11 @@ class Appointment(Document):
     package_id = ReferenceField(DoctorPackage, reverse_delete_rule=CASCADE, required=True)
     patient_id = ReferenceField(Patient, reverse_delete_rule=CASCADE, required=True)
     booking_id = StringField(max_length=9, default=lambda: 'DR' + ''.join(random.choices(string.digits, k=7)))
-    date = DateTimeField(required=True)
-    time = StringField(required=True)
+    created_at = DateTimeField(required=True, auto_now_add=True)
     confirm = BooleanField(default=False)
-    status = StringField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
+    status = IntField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
     cancellation_reason = StringField(max_length=500)
+    cancellation_time = DateTimeField(required=False, auto_now_add=True)
 
     @property
     def doctor(self):

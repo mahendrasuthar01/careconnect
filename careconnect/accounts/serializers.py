@@ -76,10 +76,11 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class PatientSerializer(DocumentSerializer):
-    user = UserSerializer(source='user_id')
+    user = UserSerializer(source='user_id', read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     class Meta:
         model = Patient
-        exclude = ['user']
+        include = '__all__'
 
     def validate_name(self, value):
         """

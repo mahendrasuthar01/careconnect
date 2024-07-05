@@ -1,5 +1,6 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
 from .models import Favorite, Location, Review
+from accounts.models import User
 from rest_framework import serializers
 from django.conf import settings
 from accounts.serializers import UserSerializer
@@ -17,12 +18,13 @@ class LocationSerializer(DocumentSerializer):
 
 class ReviewSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
-    user = UserSerializer(source='user_id')
+    user = UserSerializer(source='user_id', read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
     created_at_formatted = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        exclude = ['user_id']
+        include = '__all__'
 
     def get_created_at_formatted(self, obj):
         if obj.created_at:
