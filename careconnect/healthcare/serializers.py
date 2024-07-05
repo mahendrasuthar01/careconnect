@@ -3,6 +3,7 @@ from .models import Category, WorkingTime, Hospital, Doctor
 from rest_framework import serializers
 from django.conf import settings
 from .utils import get_entity_reviews, get_hospital_specialists
+from core.serializers import LocationSerializer
 
 
 class CategorySerializer(DocumentSerializer):
@@ -71,6 +72,7 @@ class HospitalSerializer(DocumentSerializer):
 class DoctorSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     speciality = CategorySerializer(source='speciality_id')
+    location = LocationSerializer(source='location_id')
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -108,13 +110,14 @@ class DoctorSerializer(DocumentSerializer):
 
 class HospitalCardSerializer(DocumentSerializer):
     hospital_id = serializers.SerializerMethodField()
+    location = LocationSerializer(source='location_id')
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Hospital
-        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type']
+        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id']
 
     def get_average_rating(self, obj):
         return getattr(obj, 'average_rating', 0.0)
