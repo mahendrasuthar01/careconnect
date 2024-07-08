@@ -45,6 +45,8 @@ class Appointment(Document):
     booking_id = StringField(max_length=9, default=lambda: 'DR' + ''.join(random.choices(string.digits, k=7)))
     created_at = DateTimeField(required=True, auto_now_add=True)
     confirm = BooleanField(default=False)
+    date = StringField()
+    time = StringField()
     status = IntField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
     cancellation_reason = StringField(max_length=500)
     cancellation_time = DateTimeField(required=False, auto_now_add=True)
