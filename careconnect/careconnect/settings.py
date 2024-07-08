@@ -99,7 +99,7 @@ DATABASES = {
 MONGODB_DATABASES = {
     'default': {
         'name': 'careconnect',  # Your MongoDB database name
-        'host': 'localhost',   # MongoDB host
+        'host': 'db',   # MongoDB host
         'port': 27017,         # MongoDB port
         'username': '',        # If authentication is enabled
         'password': '',
@@ -110,7 +110,9 @@ MONGODB_DATABASES = {
 
 mongoengine.connect(
     db=MONGODB_DATABASES['default']['name'],
-    host=MONGODB_DATABASES['default']['host'],
+    # host=MONGODB_DATABASES['default']['host'],
+    host="mongodb://db:27017/careconnect",
+    # host=f"mongodb://{MONGODB_DATABASES['default']['host']}:{MONGODB_DATABASES['default']['port']}",
     port=MONGODB_DATABASES['default']['port'],
     username=MONGODB_DATABASES['default']['username'],
     password=MONGODB_DATABASES['default']['password'],
@@ -177,6 +179,8 @@ import os
 STATIC_URL = '/static/'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
