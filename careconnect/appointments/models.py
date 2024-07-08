@@ -46,7 +46,6 @@ class Appointment(Document):
     created_at = DateTimeField(required=True, auto_now_add=True)
     confirm = BooleanField(default=False)
     status = IntField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
-    status = IntField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
     cancellation_reason = StringField(max_length=500)
     cancellation_time = DateTimeField(required=False, auto_now_add=True)
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE)
