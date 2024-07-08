@@ -1,4 +1,4 @@
-from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField, FloatField, DateTimeField
+from mongoengine import Document,StringField, ReferenceField, IntField, CASCADE, StringField, FloatField, DateTimeField, DecimalField
 from accounts.models import User
 from constant import EntityChoices
 from datetime import datetime
@@ -26,6 +26,8 @@ class Location(Document):
     city = StringField(max_length=255, required=True)
     state = StringField(max_length=255, required=True)
     country = StringField(max_length=255, required=True)
+    latitude = DecimalField(max_digits=13, decimal_places=10, null=True, blank=True)
+    longitude = DecimalField(max_digits=13, decimal_places=10, null=True, blank=True)
 
 class Review(Document):
     entity_id = StringField(max_length=255, required=True)

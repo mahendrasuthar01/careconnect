@@ -11,6 +11,7 @@ from appointments.models import Appointment
 from constant import DOCTOR, HOSPITAL
 from rest_framework.views import APIView
 from .utils import get_reviews_data
+from rest_framework.exceptions import NotFound
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -80,6 +81,46 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
     queryset = WorkingTime.objects.all()
     serializer_class = WorkingTimeSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return WorkingTime.objects.all()
+    
+    def get_entity_details(self, working_time):
+        entity_type = working_time.entity_type
+        entity_id = working_time.entity_id
+
+        try:
+            if entity_type == 1:
+                entity = Doctor.objects.get(id=entity_id)
+                serializer = DoctorSerializer(entity)
+            elif entity_type == 2:
+                entity = Hospital.objects.get(id=entity_id)
+                serializer = HospitalSerializer(entity)
+            else:
+                raise NotFound("Entity type not supported")
+
+            return serializer.data
+        except (Doctor.DoesNotExist, Hospital.DoesNotExist):
+            raise NotFound("Entity not found")
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        serialized_data = []
+        for working_time_instance in queryset:
+            serializer = self.get_serializer(working_time_instance)
+            working_time_data = serializer.data
+            working_time_data['entity_details'] = self.get_entity_details(working_time_instance)
+            serialized_data.append(working_time_data)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = serializer.data
+        serializer_data['entity_details'] = self.get_entity_details(instance)
+        return Response(serializer_data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         try:

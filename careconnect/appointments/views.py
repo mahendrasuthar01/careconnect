@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from datetime import datetime
+from accounts.authentication import JWTAuthentication
 
 # Create your views here.
 class DoctorPackageViewset(viewsets.ModelViewSet):
@@ -55,6 +56,19 @@ class AppointmentViewset(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
+class AppointmentsByUserView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = AppointmentSerializer
+            
+    def get(self, request, user_id):
+        try:
+            appointments = Appointment.objects.filter(user_id=user_id)
+            if not appointments:
+                return Response({"error": {"message": "No appointments found for this user"}}, status=status.HTTP_404_NOT_FOUND)
+            serializer = AppointmentSerializer(appointments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": {"message": str(e)}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class AppointmentCancellationView(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentCancellationSerializer
