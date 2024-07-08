@@ -73,7 +73,6 @@ class HospitalSerializer(DocumentSerializer):
 class DoctorSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     speciality = CategorySerializer(source='speciality_id', read_only=True)
-    speciality = CategorySerializer(source='speciality_id')
     location = LocationSerializer(source='location_id')
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
