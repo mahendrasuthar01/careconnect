@@ -17,8 +17,8 @@ class DoctorPackageSerializer(DocumentSerializer):
 class AppointmentSerializer(DocumentSerializer):
     doctor = DoctorSerializer(source='doctor_id', read_only=True)
     booking_id = serializers.CharField(read_only=True)
-    # created_at_date_formatted = serializers.SerializerMethodField()
-    # created_at_time_formatted = serializers.SerializerMethodField()
+    date_formatted = serializers.SerializerMethodField()
+    time_formatted = serializers.SerializerMethodField()
     patient = PatientSerializer(source='patient_id.patient_name', read_only=True)
     
     class Meta:
@@ -28,15 +28,15 @@ class AppointmentSerializer(DocumentSerializer):
     def create(self, validated_data):
         return Appointment.objects.create(**validated_data)
     
-    # def get_created_at_date_formatted(self, obj):
-    #     if obj.created_at:
-    #         return obj.created_at.strftime('%d %b, %Y')
-    #     return None
-        
-    # def get_created_at_time_formatted(self, obj):
-    #     if obj.created_at:
-    #         return obj.created_at.strftime('%I:%M %p')
-    #     return None
+    def get_date_formatted(self, obj):
+        if obj.date_time:
+            return obj.date_time.strftime('%d %b, %Y')
+        return None
+
+    def get_time_formatted(self, obj):
+        if obj.date_time:
+            return obj.date_time.strftime('%I:%M %p')
+        return None
 
     
 class AppointmentCancellationSerializer(DocumentSerializer):
