@@ -27,11 +27,31 @@ class ReviewSerializer(DocumentSerializer):
         include = '__all__'
 
     def get_created_at_formatted(self, obj):
+        """
+        Returns a formatted string of the `created_at` attribute of the given object.
+
+        Parameters:
+            self (object): The instance of the class.
+            obj (object): The object containing the `created_at` attribute.
+
+        Returns:
+            str or None: The formatted string in the format '%d %b, %Y' if `created_at` exists, None otherwise.
+        """
         if obj.created_at:
             return obj.created_at.strftime('%d %b, %Y')
         return None
 
     def get_files(self, obj):
+        """
+        Retrieves the files URL for a given object.
+
+        Parameters:
+            self: The serializer instance.
+            obj: The object from which to retrieve the files URL.
+
+        Returns:
+            The absolute URI of the files URL if it exists, otherwise None.
+        """
         files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
         if files_url:
             request = self.context.get('request')

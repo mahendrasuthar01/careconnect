@@ -9,7 +9,7 @@ from healthcare.models import Doctor, Hospital
 from healthcare.serializers import HospitalSerializer, DoctorSerializer
 from accounts.authentication import JWTAuthentication
 from rest_framework.exceptions import NotFound
-from healthcare.utils import get_entity_reviews, get_reviews_data
+from healthcare.utils import get_reviews_data
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
@@ -20,12 +20,32 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return Favorite.objects.all()
     
     def update_mongodb(self, entity_type, entity_id, is_favorite):
+        """
+        Updates the MongoDB database based on the entity type and ID by setting the 'is_favorite' field to the provided value.
+
+        Args:
+            self: The FavoriteViewSet instance.
+            entity_type (int): The type of the entity (1 for Doctor, 2 for Hospital).
+            entity_id (int): The ID of the entity.
+            is_favorite (bool): The value to set the 'is_favorite' field to.
+        """
         if entity_type == 1:
             Doctor.objects.filter(id=entity_id).update(is_favorite=is_favorite)
         elif entity_type == 2: 
             Hospital.objects.filter(id=entity_id).update(is_favorite=is_favorite)
 
     def is_valid_entity_id(self, entity_type, entity_id):
+        """
+        Checks if the provided entity type and ID correspond to a valid entity.
+        
+        Args:
+            self: The FavoriteViewSet instance.
+            entity_type (int): The type of the entity (1 for Doctor, 2 for Hospital).
+            entity_id (int): The ID of the entity.
+        
+        Returns:
+            bool: True if the entity is valid, False otherwise.
+        """
         if entity_type == 1:
             doctor = Doctor.objects.filter(id=entity_id).first()
             return doctor is not None
@@ -35,6 +55,18 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return False
 
     def create(self, request, *args, **kwargs):
+        """
+        A function to create a new favorite item based on the provided entity_id and entity_type.
+        
+        Args:
+            self: The FavoriteViewSet instance.
+            request: The request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+            
+        Returns:
+            Response: A response indicating the success or failure of the favorite creation process.
+        """
         entity_id = request.data.get('entity_id')
         entity_type = request.data.get('entity_type')
         user = JWTAuthentication.authenticate(self, request)
@@ -90,6 +122,21 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return Response({"message": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
     
     def get_entity_details(self, favorite):
+        """
+        Retrieves the details of an entity based on the provided favorite object.
+
+        Args:
+            self: The instance of the class.
+            favorite (Favorite): The favorite object containing the entity type and ID.
+
+        Returns:
+            dict: A dictionary containing the details of the entity. The dictionary has the following keys:
+                - 'review_count' (int): The number of reviews for the entity.
+                - 'average_rating' (float): The average rating of the reviews for the entity.
+
+        Raises:
+            NotFound: If the entity type is not supported or if the entity is not found.
+        """
         entity_type = favorite.entity_type
         entity_id = favorite.entity_id
 
@@ -113,6 +160,18 @@ class FavoriteViewSet(viewsets.ModelViewSet):
             raise NotFound("Entity not found")
 
     def list(self, request, *args, **kwargs):
+        """
+        Retrieves a queryset of favorite instances, serializes each instance, adds entity details to the serialized data, and returns a response with the serialized data.
+        
+        Parameters:
+            self: reference to the current instance of the class
+            request: the request object
+            *args: variable length argument list
+            **kwargs: variable length keyword argument list
+        
+        Returns:
+            Response object with serialized data and HTTP 200 status
+        """
         queryset = self.get_queryset()
 
         serialized_data = []
@@ -125,6 +184,18 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         return Response(serialized_data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieves an object, serializes it, adds entity details to the serialized data, and returns a response with the serialized data.
+
+        Parameters:
+            self: reference to the current instance of the class
+            request: the request object
+            *args: variable length argument list
+            **kwargs: variable length keyword argument list
+
+        Returns:
+            Response object with serialized data and HTTP 200 status
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         serializer_data = serializer.data
@@ -137,6 +208,18 @@ class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
 
     def destroy(self, request, *args, **kwargs):
+        """
+        Deletes a location object from the database.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object with a message if the location is deleted successfully,
+                     otherwise an error response.
+        """
         try:
             location = self.get_object()
             location.delete()
@@ -152,6 +235,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
 
     def get_queryset(self):
+        """
+        Retrieves the queryset for the current viewset based on the provided query parameters.
+
+        Returns:
+            QuerySet: The filtered queryset based on the 'entity_id' query parameter.
+        """
         queryset = self.queryset
         entity_id = self.request.query_params.get('entity_id')
         if entity_id:
@@ -159,6 +248,15 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return queryset
     
     def save_file(self, file):
+        """
+        Saves a file to the 'review_files' directory in the media root.
+
+        Args:
+            file (File): The file to be saved.
+
+        Returns:
+            str: The path to the saved file in the format 'media/review_files/filename'.
+        """
         file_path = os.path.join(settings.MEDIA_ROOT, 'review_files', file.name)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'wb+') as destination:
@@ -167,6 +265,40 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return 'media/review_files/' + file.name
     
     def create(self, request, *args, **kwargs):
+        """
+        Creates a new instance of the model using the provided data and saves it to the database.
+        
+        Args:
+            request (HttpRequest): The HTTP request object containing the data to be validated.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        
+        Returns:
+            Response: The HTTP response containing the serialized data of the created instance.
+                If the data is valid, the response will have a status code of 201 (Created) and
+                include the serialized data of the created instance. If the data is invalid, the
+                response will have a status code of 400 (Bad Request) and include the serializer
+                errors.
+        
+        Raises:
+            None
+        
+        Steps:
+            1. Authenticates the user using the JWTAuthentication class and retrieves the user's ID.
+            2. Retrieves the data from the request object.
+            3. Adds the user ID to the data dictionary.
+            4. Validates the data using the serializer class.
+            5. If the data is valid, retrieves the file from the request object and saves it to the
+               'review_files' directory in the media root using the 'save_file' method.
+            6. Saves the instance using the serializer and the file URL.
+            7. Creates a response data dictionary with the serialized data of the created instance.
+            8. Sets the 'files' field in the response data to None.
+            9. If the file URL is not None, sets the 'file_path' field in the response data to the
+               absolute URI of the file.
+            10. Returns a HTTP 201 Created response with the serialized response data.
+            11. If the data is invalid, returns a HTTP 400 Bad Request response with the serializer
+                errors.
+        """
         user = JWTAuthentication.authenticate(self, request)
         user_id = str(user.id)
         
@@ -193,6 +325,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
     def destroy(self, request, *args, **kwargs):
+        """
+        Deletes a review object from the database.
+
+        Args:
+            self: The ReviewViewSet instance.
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object with a message if the review is deleted successfully,
+                     otherwise an error response.
+        """
         try:
             review = self.get_object()
             review.delete()
@@ -202,6 +347,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
         
 
     def get_entity_details(self, review):
+        """
+        Retrieves the details of an entity based on the provided review object.
+        
+        Args:
+            self: The instance of the class.
+            review: The review object containing the entity type and ID.
+        
+        Returns:
+            dict: A dictionary containing the details of the entity. The dictionary has keys based on the entity's data.
+        
+        Raises:
+            NotFound: If the entity type is not supported or if the entity is not found.
+        """
         entity_type = review.entity_type
         entity_id = review.entity_id
 
@@ -221,6 +379,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
         
 
     def list(self, request, *args, **kwargs):
+        """
+        Retrieves a queryset of items, serializes each item, adds entity details to the serialized data, and returns a response with the serialized data.
+        
+        Parameters:
+            self: reference to the current instance of the class
+            request: the request object
+            *args: variable length argument list
+            **kwargs: variable length keyword argument list
+        
+        Returns:
+            Response object with serialized data and HTTP 200 status
+        """
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         for review in serializer.data:
@@ -228,6 +398,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieves an object, serializes it, adds entity details to the serialized data, and returns a response with the serialized data.
+
+        Parameters:
+            self: reference to the current instance of the class
+            request: the request object
+            *args: variable length argument list
+            **kwargs: variable length keyword argument list
+
+        Returns:
+            Response object with serialized data and HTTP 200 status
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         serializer_data = serializer.data
