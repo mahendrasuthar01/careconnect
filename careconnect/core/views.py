@@ -37,7 +37,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         entity_id = request.data.get('entity_id')
         entity_type = request.data.get('entity_type')
-        user = JWTAuthentication.get_current_user(self, request)
+        user = JWTAuthentication.authenticate(self, request)
         user_id = str(user.id)
 
         if not entity_id or not entity_type:
@@ -167,7 +167,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return 'media/review_files/' + file.name
     
     def create(self, request, *args, **kwargs):
-        user = JWTAuthentication.get_current_user(self, request)
+        user = JWTAuthentication.authenticate(self, request)
         user_id = str(user.id)
         
         data = request.data
