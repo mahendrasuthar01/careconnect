@@ -111,13 +111,16 @@ MONGODB_DATABASES = {
 mongoengine.connect(
     db=MONGODB_DATABASES['default']['name'],
     # host=MONGODB_DATABASES['default']['host'],
-    host="mongodb://db:27017/careconnect",
-    # host=f"mongodb://{MONGODB_DATABASES['default']['host']}:{MONGODB_DATABASES['default']['port']}",
+    # host="mongodb://db:27017/careconnect",
+    # host="db",
+    host=f"mongodb://{MONGODB_DATABASES['default']['host']}:{MONGODB_DATABASES['default']['port']}",
     port=MONGODB_DATABASES['default']['port'],
     username=MONGODB_DATABASES['default']['username'],
     password=MONGODB_DATABASES['default']['password'],
     authentication_source=MONGODB_DATABASES['default']['authentication_source']
 )
+
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/careconnect')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default Django authentication backend

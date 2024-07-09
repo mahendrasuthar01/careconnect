@@ -4,7 +4,6 @@ services:
   web:
     build: .
     command: uvicorn careconnect.asgi:application --host 0.0.0.0 --port 8000
-
     volumes:
       - .:/app
     ports:
@@ -13,6 +12,8 @@ services:
       - .env
     depends_on:
       - db
+    environment:
+      - MONGO_URI=mongodb://db:27017/careconnect
     networks:
       - test
 
@@ -24,6 +25,9 @@ services:
       - "27017:27017"
     environment:
       MONGO_INITDB_DATABASE: careconnect
+    networks:
+      - test
+    
 
 volumes:
   mongo_data:
