@@ -69,7 +69,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         """
         entity_id = request.data.get('entity_id')
         entity_type = request.data.get('entity_type')
-        user = JWTAuthentication.authenticate(self, request)
+        user = JWTAuthentication.get_current_user(self, request)
         user_id = str(user.id)
 
         if not entity_id or not entity_type:
@@ -299,7 +299,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             11. If the data is invalid, returns a HTTP 400 Bad Request response with the serializer
                 errors.
         """
-        user = JWTAuthentication.authenticate(self, request)
+        user = JWTAuthentication.get_current_user(self, request)
         user_id = str(user.id)
         
         data = request.data
