@@ -39,8 +39,8 @@ class DoctorPackageViewset(viewsets.ModelViewSet):
         
 
 class AppointmentViewset(viewsets.ModelViewSet):
-    queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
     permission_classes = [AllowAny]
 
 
@@ -50,7 +50,7 @@ class AppointmentViewset(viewsets.ModelViewSet):
     	Returns the queryset of appointments filtered by the provided doctor_id if it exists, 
     	otherwise returns the default queryset.
     	"""
-
+        Appointment.objects.all()
         doctor_id = self.request.query_params.get('doctor_id')
         if doctor_id:
             return Appointment.objects.filter(doctor_id=doctor_id)

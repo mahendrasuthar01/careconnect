@@ -40,13 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'drf_yasg',
+    'daphne',
     'django.contrib.staticfiles',
     'accounts',
     'healthcare',
     'rest_framework',
     'rest_framework_mongoengine',
-    'drf_yasg',
+    'channels',
 ]
+ASGI_APPLICATION = 'careconnect.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -210,3 +213,19 @@ SWAGGER_SETTINGS = {
         }
     }
 }
+
+#channels settings
+ASGI_APPLICATION = 'careconnect.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+CHANNELS_MIDDLEWARE = [
+    'channels.middleware.auth.AuthenticationMiddleware',
+    'channels.middleware.websocket.WebSocketMiddleware',
+]

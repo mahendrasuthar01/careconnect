@@ -28,6 +28,27 @@ class JWTAuthentication(BaseAuthentication):
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
             raise AuthenticationFailed('Invalid token')
         
+    def get_current_user(self, request):
+        token = request.headers.get('Authorization')
+
+        if not token:
+            return None
+        try:
+
+            if token.startswith('Bearer '):
+                token = token.split(' ')[1]
+
+
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+
+
+            user = User.objects.get(id=payload.get('user_id', {}).get('id'))
+
+            return user  
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
+            raise AuthenticationFailed('Invalid token')
+        
+        
     @staticmethod
     def generate_jwt(user):
         payload = {

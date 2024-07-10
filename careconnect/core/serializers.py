@@ -12,6 +12,8 @@ class FavoriteSerializer(DocumentSerializer):
         fields = ['entity_id', 'entity_type']
 
 class LocationSerializer(DocumentSerializer):
+    latitude = serializers.DecimalField(max_digits=13, decimal_places=10, required=False)
+    longitude = serializers.DecimalField(max_digits=13, decimal_places=10, required=False)
     class Meta:
         model = Location
         fields = '__all__'

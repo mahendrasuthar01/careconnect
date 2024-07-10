@@ -44,7 +44,7 @@ class Appointment(Document):
     patient_id = ReferenceField(Patient, reverse_delete_rule=CASCADE, required=True)
     booking_id = StringField(max_length=9, default=lambda: 'DR' + ''.join(random.choices(string.digits, k=7)))
     created_at = DateTimeField(required=True, auto_now_add=True)
-    confirm = BooleanField(default=False)
+    confirm = BooleanField(default=True)
     date_time = DateTimeField(required=True)
     status = IntField(max_length=100, choices=AppointmentStatusChoice.CHOICES)
     cancellation_reason = StringField(max_length=500)
