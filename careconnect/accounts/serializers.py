@@ -12,6 +12,20 @@ class UserSerializer(DocumentSerializer):
         fields = '__all__'
 
     def validate(self, attrs):
+
+        """
+        Validates the given attributes for the username and email.
+
+        Args:
+            attrs (dict): A dictionary containing the attributes to be validated.
+
+        Raises:
+            serializers.ValidationError: If the username or email already exists.
+
+        Returns:
+            dict: The validated attributes.
+        """
+
         username = attrs.get('username')
         email = attrs.get('email')
 
