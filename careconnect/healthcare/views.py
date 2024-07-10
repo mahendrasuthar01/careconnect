@@ -37,7 +37,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
         with open(file_path, 'wb+') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
-        return 'media/category_files/' + file.name
+        # return 'media/category_files/' + file.name
+        return 'category_files/' + file.name
         
 
     def create(self, request, *args, **kwargs) -> Response:
@@ -91,7 +92,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             response_data['files'] = None
 
             if file_url is not None:
-                response_data['files'] = request.build_absolute_uri(f'/{file_url}')
+                response_data['files'] = request.build_absolute_uri(f'/{settings.MEDIA_URL}{file_url}')
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
