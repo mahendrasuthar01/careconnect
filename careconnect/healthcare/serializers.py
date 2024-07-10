@@ -26,9 +26,12 @@ class CategorySerializer(DocumentSerializer):
         """
         files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
         if files_url:
+            if files_url.startswith('media/'):
+                files_url = files_url[len('media/'):]
+                
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(f'{settings.MEDIA_URL}category_files/{files_url}')
+                return request.build_absolute_uri(f'{settings.MEDIA_URL}{files_url}')
         return None
 
 class WorkingTimeSerializer(DocumentSerializer):
@@ -127,11 +130,14 @@ class HospitalSerializer(DocumentSerializer):
         files_url = obj.get('files') if isinstance(obj, dict) else obj.files
         
         if files_url:
+            if files_url.startswith('media/'):
+                files_url = files_url[len('media/'):]
+            
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(settings.MEDIA_URL + 'uploaded_files/' + files_url)
+                return request.build_absolute_uri(settings.MEDIA_URL + files_url)
             else:
-                return settings.MEDIA_URL + 'uploaded_files/' + files_url
+                return settings.MEDIA_URL + files_url
         return None
       
     class Meta:
@@ -141,7 +147,7 @@ class HospitalSerializer(DocumentSerializer):
 class DoctorSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     speciality = CategorySerializer(source='speciality_id', read_only=True)
-    location = LocationSerializer(source='location_id')
+    location = LocationSerializer(source='location_id', read_only=True)
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -164,11 +170,14 @@ class DoctorSerializer(DocumentSerializer):
         files_url = obj.get('files') if isinstance(obj, dict) else obj.files
         
         if files_url:
+            if files_url.startswith('media/'):
+                files_url = files_url[len('media/'):]
+            
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(settings.MEDIA_URL + 'uploaded_files/' + files_url)
+                return request.build_absolute_uri(settings.MEDIA_URL + files_url)
             else:
-                return settings.MEDIA_URL + 'uploaded_files/' + files_url
+                return settings.MEDIA_URL + files_url
         return None
 
     def get_review_count(self, obj):
