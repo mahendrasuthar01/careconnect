@@ -30,7 +30,7 @@ class AppointmentSerializer(DocumentSerializer):
     booking_id = serializers.CharField(read_only=True)
     date_formatted = serializers.SerializerMethodField()
     time_formatted = serializers.SerializerMethodField()
-    patient = PatientSerializer(source='patient_id.patient_name', read_only=True)
+    patient = PatientSerializer(source='patient_id', read_only=True)
     package = DoctorPackageSerializer(source='package_id', read_only=True)
     
     class Meta:
