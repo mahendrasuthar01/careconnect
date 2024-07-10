@@ -8,6 +8,9 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /app
 
+# Create a directory for media files
+RUN mkdir -p /app/media && chmod -R 755 /app/media
+
 # Install system dependencies required for the application
 RUN apt update && apt install -y build-essential
 
@@ -27,5 +30,5 @@ RUN python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Define the default command to run your application with Gunicorn
-CMD ["uvicorn", "myproject.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "careconnect.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
 
