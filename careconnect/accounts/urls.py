@@ -14,9 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 from .views import UserViewSet, CustomLoginView, VerifyOTPView, RequestPasswordResetView, ResetPasswordView, PatientViewSet, PatientsByUserView
+from .consumers import UserChatConsumer
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -30,4 +31,9 @@ urlpatterns = [
     path('forgot-password/', RequestPasswordResetView.as_view(), name='forgot_password'),
     path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
     path('patients/by-user/<user_id>/', PatientsByUserView.as_view(), name='patients_by_user'),
+]
+
+websocket_urlpatterns = [
+    # re_path(r'ws/chat/(?P<room_name>\w+)/$', ChatConsumer.as_asgi()),
+    path('ws/chat/user/<str:room_name>', UserChatConsumer.as_asgi()),
 ]
