@@ -50,6 +50,7 @@ class HospitalSerializer(DocumentSerializer):
     reviews = serializers.SerializerMethodField()
     speciaists = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
+    working_time = WorkingTimeSerializer(source='working_time_id', read_only=True)
 
     def get_review_count(self, obj):
         """
@@ -152,6 +153,7 @@ class DoctorSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
+    working_time = WorkingTimeSerializer(source='working_time_id', read_only=True)
 
     class Meta:
         model = Doctor
