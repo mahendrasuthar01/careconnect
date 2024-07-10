@@ -65,7 +65,9 @@ class UserSerializer(DocumentSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    # user_id = serializers.CharField()
     email = serializers.CharField()
+    username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     class Meta:

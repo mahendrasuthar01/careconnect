@@ -74,10 +74,12 @@ class CustomLoginView(APIView):
             if user_obj:
                 if user_obj.check_password(password):
                     token = JWTAuthentication.generate_jwt(user_obj)
+                   
                     return_dict = {
-                        'user': {'email': user_obj.email},
+                        'user': {"user_id": str(user_obj.id) ,'email': user_obj.email, 'username': user_obj.username},
                         'token': {'type': 'Bearer', 'token': token}
                     }
+
                     return Response(return_dict, status=status.HTTP_200_OK)
                 return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
         else:
