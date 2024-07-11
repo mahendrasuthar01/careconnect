@@ -50,11 +50,10 @@ class AppointmentViewset(viewsets.ModelViewSet):
     	Returns the queryset of appointments filtered by the provided doctor_id if it exists, 
     	otherwise returns the default queryset.
     	"""
-        Appointment.objects.all()
         doctor_id = self.request.query_params.get('doctor_id')
         if doctor_id:
             return Appointment.objects.filter(doctor_id=doctor_id)
-        return self.queryset
+        return Appointment.objects.all().order_by('date_time')
 
     def destroy(self, request, *args, **kwargs):
 
