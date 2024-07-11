@@ -44,7 +44,7 @@ class HospitalSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     category = CategorySerializer(source='category_id', read_only=True)
     working_time = WorkingTimeSerializer(source='working_time_id', read_only=True)
-    location = LocationSerializer(source='location_id')
+    location = LocationSerializer(source='location_id', read_only=True)
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -242,10 +242,11 @@ class HospitalCardSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
+    speciality = CategorySerializer(source='category_id', read_only=True)
 
     class Meta:
         model = Hospital
-        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id']
+        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id', 'speciality']
 
     def get_average_rating(self, obj):
         """
@@ -298,6 +299,9 @@ class HospitalCardSerializer(DocumentSerializer):
             int: The entity type if available, otherwise 2.
         """
         return getattr(obj, 'entity_type', 2)
+    
+    def get_speciality(self, obj):
+        return getattr(obj, 'category_id', None)
 
 class DoctorCardSerializer(DocumentSerializer):
     doctor_id = serializers.SerializerMethodField()
