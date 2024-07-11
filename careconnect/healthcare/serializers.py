@@ -24,14 +24,17 @@ class CategorySerializer(DocumentSerializer):
         Returns:
             The absolute URI of the files URL if it exists, otherwise None.
         """
-        files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
+        files_url = obj.get('files') if isinstance(obj, dict) else obj.files
+        
         if files_url:
             if files_url.startswith('media/'):
                 files_url = files_url[len('media/'):]
-                
+            
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(f'{settings.MEDIA_URL}{files_url}')
+                return request.build_absolute_uri(settings.MEDIA_URL + files_url)
+            else:
+                return settings.MEDIA_URL + files_url
         return None
 
 class WorkingTimeSerializer(DocumentSerializer):

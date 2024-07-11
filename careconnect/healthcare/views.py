@@ -37,8 +37,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         with open(file_path, 'wb+') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
-        # return 'media/category_files/' + file.name
-        return 'category_files/' + file.name
+        return 'media/category_files/' + file.name
         
 
     def create(self, request, *args, **kwargs) -> Response:
@@ -73,26 +72,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            name = serializer.validated_data.get('name')
-            description = serializer.validated_data.get('description')
             files = request.FILES.get('files', None)
+            file_url = self.save_file(files) if files else None
 
-            if files:
-                file_url = self.save_file(files)
-            else:
-                file_url = None
-
-            Category.objects.create(
-                name=name,
-                description=description,
-                files=file_url
-            )
+            category = serializer.save(files=file_url)
 
             response_data = serializer.data
             response_data['files'] = None
 
             if file_url is not None:
-                response_data['files'] = request.build_absolute_uri(f'/{settings.MEDIA_URL}{file_url}')
+                response_data['file_path'] = request.build_absolute_uri('/' + file_url)
 
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
