@@ -24,14 +24,17 @@ class CategorySerializer(DocumentSerializer):
         Returns:
             The absolute URI of the files URL if it exists, otherwise None.
         """
-        files_url = obj.get('files') if isinstance(obj, dict) else getattr(obj, 'files', None)
+        files_url = obj.get('files') if isinstance(obj, dict) else obj.files
+        
         if files_url:
             if files_url.startswith('media/'):
                 files_url = files_url[len('media/'):]
-                
+            
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(f'{settings.MEDIA_URL}{files_url}')
+                return request.build_absolute_uri(settings.MEDIA_URL + files_url)
+            else:
+                return settings.MEDIA_URL + files_url
         return None
 
 class WorkingTimeSerializer(DocumentSerializer):
@@ -44,7 +47,7 @@ class HospitalSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()
     category = CategorySerializer(source='category_id', read_only=True)
     working_time = WorkingTimeSerializer(source='working_time_id', read_only=True)
-    location = LocationSerializer(source='location_id')
+    location = LocationSerializer(source='location_id', read_only=True)
     review_count = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -242,10 +245,11 @@ class HospitalCardSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
     review_count = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
+    speciality = CategorySerializer(source='category_id', read_only=True)
 
     class Meta:
         model = Hospital
-        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id']
+        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id', 'speciality']
 
     def get_average_rating(self, obj):
         """
@@ -298,6 +302,9 @@ class HospitalCardSerializer(DocumentSerializer):
             int: The entity type if available, otherwise 2.
         """
         return getattr(obj, 'entity_type', 2)
+    
+    def get_speciality(self, obj):
+        return getattr(obj, 'category_id', None)
 
 class DoctorCardSerializer(DocumentSerializer):
     doctor_id = serializers.SerializerMethodField()
