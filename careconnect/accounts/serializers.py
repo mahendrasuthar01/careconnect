@@ -67,7 +67,7 @@ class UserSerializer(DocumentSerializer):
 class LoginSerializer(serializers.Serializer):
     # user_id = serializers.CharField()
     email = serializers.CharField()
-    username = serializers.CharField()
+    username = serializers.CharField(required=False)
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -86,9 +86,10 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         fields = ['email']
 
 class ResetPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
     new_password = serializers.CharField()
-    otp = serializers.CharField()
+
+    class Meta:
+        fields = ['new_password']
 
 
 class PatientSerializer(DocumentSerializer):
