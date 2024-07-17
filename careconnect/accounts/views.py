@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
+        
 class CustomLoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):

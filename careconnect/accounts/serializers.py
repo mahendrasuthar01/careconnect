@@ -29,6 +29,9 @@ class UserSerializer(DocumentSerializer):
         username = attrs.get('username')
         email = attrs.get('email')
 
+        if self.instance:
+            return attrs
+
         # Check if the username is unique
         if User.objects(username=username).count() > 0 or User.objects(email=email).count() > 0:
             raise serializers.ValidationError({"error": {"message": "Username or Email already exists"}})
