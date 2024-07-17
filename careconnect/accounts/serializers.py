@@ -79,7 +79,7 @@ class VerifyOTPSerializer(serializers.Serializer):
     otp = serializers.CharField()
 
 
-class RequestPasswordResetSerializer(serializers.Serializer):
+class ForgotPasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     class Meta:

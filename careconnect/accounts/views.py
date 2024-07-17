@@ -4,7 +4,7 @@ from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from .models import User, Patient
-from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordProfileSerializer, VerifyOTPSerializer, PatientSerializer, ResetPasswordForgotSerializer
+from .serializers import UserSerializer, LoginSerializer, ForgotPasswordResetSerializer, ResetPasswordProfileSerializer, VerifyOTPSerializer, PatientSerializer, ResetPasswordForgotSerializer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 from .authentication import JWTAuthentication
@@ -140,7 +140,7 @@ class ForgotPasswordResetView(APIView):
         This function validates the request data using the RequestPasswordResetSerializer. If the data is valid, it retrieves the user with the given email from the User model. It then generates and saves an OTP (One-Time Password) for the user. An email is sent to the user with the OTP. The email subject is 'Your OTP Code' and the email body contains the OTP. If the user is not found, a response with status code 404 and error message 'User not found' is returned. If the data is not valid, a response with status code 400 and serializer errors is returned. If the data is valid and the user is found, a response with status code 200 and message 'OTP sent successfully' is returned.
         """
 
-        serializer = RequestPasswordResetSerializer(data=request.data)
+        serializer = ForgotPasswordResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
         if serializer.is_valid():
@@ -205,6 +205,12 @@ class ResetPasswordForgotView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Handles the POST request for resetting the password. Validates the request data using the ResetPasswordForgotSerializer. 
+        If the data is valid, retrieves the user with the given email from the User model. Verifies the OTP and sets a new password for the user. 
+        If the OTP verification fails, returns an error response. If the user is not found, returns a 'User not found' error response. 
+        If an unexpected exception occurs, returns a 500 Internal Server Error response. 
+        """
         serializer = ResetPasswordForgotSerializer(data=request.data)
 
         if serializer.is_valid():
