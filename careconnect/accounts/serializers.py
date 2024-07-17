@@ -85,11 +85,18 @@ class RequestPasswordResetSerializer(serializers.Serializer):
     class Meta:
         fields = ['email']
 
-class ResetPasswordSerializer(serializers.Serializer):
+class ResetPasswordProfileSerializer(serializers.Serializer):
     new_password = serializers.CharField()
 
     class Meta:
         fields = ['new_password']
+
+class ResetPasswordForgotSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField()
+
+    class Meta:
+        fields = ['email', 'new_password']
 
 
 class PatientSerializer(DocumentSerializer):

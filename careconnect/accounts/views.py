@@ -3,9 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-
 from .models import User, Patient
-from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer, PatientSerializer
+from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordProfileSerializer, VerifyOTPSerializer, PatientSerializer, ResetPasswordForgotSerializer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 from .authentication import JWTAuthentication
@@ -121,7 +120,7 @@ class VerifyOTPView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-class RequestPasswordResetView(APIView):
+class ForgotPasswordResetView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
@@ -161,7 +160,7 @@ class RequestPasswordResetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ResetPasswordView(APIView):
+class ResetPasswordProfileView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -180,7 +179,7 @@ class ResetPasswordView(APIView):
 
         """
         
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = ResetPasswordProfileSerializer(data=request.data)
         if serializer.is_valid():
             user_token = JWTAuthentication.get_current_user(self, request) 
             if user_token is None:
@@ -201,7 +200,33 @@ class ResetPasswordView(APIView):
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+class ResetPasswordForgotView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordForgotSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                user = User.objects.get(email=email)
+                otp = user.otp
+
+                if not user.verify_otp(otp):
+                    return Response({'error': 'Reset password link expired'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                user.set_password(new_password)
+                user.save()
+                return Response({'message': 'Password reset successfully'}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientViewSet(viewsets.ModelViewSet):
