@@ -184,10 +184,15 @@ class ResetPasswordProfileView(APIView):
             user_token = JWTAuthentication.get_current_user(self, request) 
             if user_token is None:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-            user_email = user_token.email
             
+            user_email = user_token.email
+
+            current_password = serializer.validated_data['current_password']
             new_password = serializer.validated_data['new_password']
             
+            if not user_token.check_password(current_password):
+                return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)
+
             try:
                 user = User.objects.get(email=user_email)
                 

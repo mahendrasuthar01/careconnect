@@ -86,10 +86,11 @@ class ForgotPasswordResetSerializer(serializers.Serializer):
         fields = ['email']
 
 class ResetPasswordProfileSerializer(serializers.Serializer):
+    current_password = serializers.CharField()
     new_password = serializers.CharField()
 
     class Meta:
-        fields = ['new_password']
+        fields = ['current_password', 'new_password']
 
 class ResetPasswordForgotSerializer(serializers.Serializer):
     email = serializers.EmailField()
