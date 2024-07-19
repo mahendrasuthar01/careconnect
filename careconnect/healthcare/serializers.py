@@ -247,10 +247,11 @@ class HospitalCardSerializer(DocumentSerializer):
     review_count = serializers.SerializerMethodField()
     entity_type = serializers.SerializerMethodField()
     speciality = CategorySerializer(source='category_id', read_only=True)
+    hospital = serializers.SerializerMethodField()
 
     class Meta:
         model = Hospital
-        fields = ['hospital_id', 'name', 'files', 'location_id', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id', 'speciality']
+        fields = ['hospital_id', 'name', 'files', 'is_favorite', 'average_rating', 'review_count', 'entity_type', 'location_id', 'speciality', 'hospital']
 
     def get_average_rating(self, obj):
         """
@@ -306,6 +307,22 @@ class HospitalCardSerializer(DocumentSerializer):
     
     def get_speciality(self, obj):
         return getattr(obj, 'category_id', None)
+    
+    def get_hospital(self, obj):
+        """
+        Retrieves the hospital object using hospital_id and serializes it.
+
+        Args:
+            obj (Hospital): The hospital object.
+
+        Returns:
+            dict: Serialized hospital data.
+        """
+        hospital_id = getattr(obj, 'hospital_id', None)
+        if hospital_id:
+            hospital = Hospital.objects.get(id=hospital_id)
+            return HospitalSerializer(hospital).data
+        return None
 
 class DoctorCardSerializer(DocumentSerializer):
     doctor_id = serializers.SerializerMethodField()
@@ -313,11 +330,12 @@ class DoctorCardSerializer(DocumentSerializer):
     average_rating = serializers.SerializerMethodField()
     speciality = CategorySerializer(source='speciality_id')
     entity_type = serializers.SerializerMethodField()
+    doctor = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
         fields = ['doctor_id', 'name', 'speciality_id', 'files', 'is_favorite', 
-                  'location_id', 'review_count', 'average_rating', 'speciality', 'entity_type']
+                  'location_id', 'review_count', 'average_rating', 'speciality', 'entity_type', 'doctor']
 
     def get_review_count(self, obj):
         """
@@ -368,3 +386,19 @@ class DoctorCardSerializer(DocumentSerializer):
             int: The entity type if available, otherwise 1.
         """
         return getattr(obj, 'entity_type', 1)
+    
+    def get_doctor(self, obj):
+        """
+        Retrieves the doctor object using doctor_id and serializes it.
+
+        Args:
+            obj (Doctor): The doctor object.
+
+        Returns:
+            dict: Serialized doctor data.
+        """
+        doctor_id = getattr(obj, 'doctor_id', None)
+        if doctor_id:
+            doctor = Doctor.objects.get(id=doctor_id)
+            return DoctorSerializer(doctor).data
+        return None
