@@ -386,8 +386,6 @@ class HospitalViewSet(viewsets.ModelViewSet):
 class DoctorViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = Doctor.objects.all()
-
 
     def get_queryset(self):
         """
@@ -407,7 +405,8 @@ class DoctorViewSet(viewsets.ModelViewSet):
         Returns:
             QuerySet: The filtered queryset of doctors.
         """
-        queryset = self.queryset
+        queryset = Doctor.objects.all()
+
         hospital_id = self.request.query_params.get('hospital_id')
         speciality_id = self.request.query_params.get('speciality_id')
 
