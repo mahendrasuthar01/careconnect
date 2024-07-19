@@ -55,6 +55,10 @@ class HospitalSerializer(DocumentSerializer):
     entity_type = serializers.SerializerMethodField()
     working_time = WorkingTimeSerializer(source='working_time_id', read_only=True)
 
+    class Meta:
+        model = Hospital
+        fields = '__all__'
+
     def get_review_count(self, obj):
         """
         Retrieves the review count from the provided object.
@@ -143,10 +147,7 @@ class HospitalSerializer(DocumentSerializer):
             else:
                 return settings.MEDIA_URL + files_url
         return None
-      
-    class Meta:
-        model = Hospital
-        fields = '__all__'
+    
 
 class DoctorSerializer(DocumentSerializer):
     files = serializers.SerializerMethodField()

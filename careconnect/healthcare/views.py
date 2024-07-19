@@ -269,7 +269,7 @@ class HospitalViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(working_time_id=working_time_id)
 
         hospital_ids = [str(hospital.id) for hospital in queryset]
-        reviews_data = get_reviews_data(hospital_ids, 0)
+        reviews_data = get_reviews_data(hospital_ids, 2)
 
         for hospital in queryset:
             hospital_id = str(hospital.id)
