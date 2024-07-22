@@ -237,7 +237,6 @@ class WorkingTimeViewSet(viewsets.ModelViewSet):
 class HospitalViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalSerializer
     permission_classes = [AllowAny]
-    queryset = Hospital.objects.all()
 
     def get_queryset(self):
 
@@ -259,7 +258,8 @@ class HospitalViewSet(viewsets.ModelViewSet):
             QuerySet: The filtered queryset of hospitals.
         """
 
-        queryset = self.queryset       
+        queryset = Hospital.objects.all()
+             
         category_id = self.request.query_params.get('category_id')
         working_time_id = self.request.query_params.get('working_time_id')
         
