@@ -38,7 +38,7 @@ class UserSerializer(DocumentSerializer):
 
         return super().validate(attrs)
         
-    def create(self, validated_data):
+    def perform_create(self, validated_data):
 
         """
         Create a new user with the given validated data.

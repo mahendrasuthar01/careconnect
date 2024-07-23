@@ -8,6 +8,7 @@ from .serializers import UserSerializer, LoginSerializer, ForgotPasswordResetSer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 from .authentication import JWTAuthentication
+from rest_framework.exceptions import ValidationError
 
 class UserViewSet(viewsets.ModelViewSet):
 
@@ -44,6 +45,31 @@ class UserViewSet(viewsets.ModelViewSet):
         except Exception:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         
+    def create(self, request, *args, **kwargs):
+        """
+        Creates a new user.
+        
+        Args:
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        
+        Returns:
+            Response: The HTTP response object with the user data if the user is created successfully,
+                      otherwise an error response.
+        """
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            # Customize the error response to be a dictionary
+            error_response = {key: value[0] if isinstance(value, list) else value for key, value in e.detail.items()}
+            return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 class CustomLoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):

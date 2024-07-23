@@ -308,21 +308,25 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         serializer = self.serializer_class(data=request.data)
     
-        if serializer.is_valid():
-            file = request.FILES.get('files', None)
-            file_url = self.save_file(file) if file else None
+        try:    
+            if serializer.is_valid():
+                file = request.FILES.get('files', None)
+                file_url = self.save_file(file) if file else None
 
-            serializer.save(files=file_url)
+                serializer.save(files=file_url)
 
-            response_data = serializer.data
-            response_data['files'] =  None
+                response_data = serializer.data
+                response_data['files'] =  None
 
-            if file_url is not None:
-                response_data['file_path'] = request.build_absolute_uri('/' + file_url)
+                if file_url is not None:
+                    response_data['file_path'] = request.build_absolute_uri('/' + file_url)
 
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(response_data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except ValueError:
+            return Response({"message": "All fields are required"})
             
     def destroy(self, request, *args, **kwargs):
         """
