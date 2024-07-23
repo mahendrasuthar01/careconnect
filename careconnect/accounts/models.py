@@ -3,6 +3,7 @@ from mongoengine import Document, StringField, DateField, EmailField, DateTimeFi
 from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
+from datetime import datetime, timedelta
 
 class User(Document):
     username = StringField(max_length=100)
@@ -32,26 +33,23 @@ class User(Document):
         return self.username
     
     def set_password(self, raw_password):
-        # Hash the raw password before saving
         self.password = make_password(raw_password)
-        # You may want to store other password-related attributes like salt
 
     def check_password(self, raw_password):
-        # Check if the raw password matches the stored hashed password
         return check_password(raw_password, self.password)
     
     def generate_otp(self):
         self.otp = ''.join(random.choices(string.digits, k=4))
         # self.otp = '0000'
-        # self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
+        self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
         self.save()
 
     def verify_otp(self, otp):
-        # if self.otp == otp and self.otp_expires_at > datetime.utcnow():
-        if self.otp == otp:
+        if self.otp == otp and self.otp_expires_at > datetime.utcnow():
+        # if self.otp == otp:
             self.is_email_verified = True
             # self.otp = None
-            self.otp_expires_at = None
+            # self.otp_expires_at = None
             self.save()
             return True
         return False
@@ -59,9 +57,11 @@ class User(Document):
 class BookingForChoices:
     SELF = 'Self'
     OTHER = 'Other'
+    SELECT = ''
     CHOICES = [
         (SELF, 'Self'),
         (OTHER, 'Other'),
+        (SELECT, '')
     ]
 
 class Patient(Document):

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, CustomLoginView, VerifyOTPView, RequestPasswordResetView, ResetPasswordView, PatientViewSet, PatientsByUserView
+from .views import UserViewSet, CustomLoginView, VerifyOTPView, ForgotPasswordResetView, ResetPasswordProfileView, PatientViewSet, PatientsByUserView, ResetPasswordForgotView
 from .consumers import UserChatConsumer
 
 router = DefaultRouter()
@@ -28,8 +28,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('login/', CustomLoginView.as_view(), name='custom_login'),
     path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
-    path('forgot-password/', RequestPasswordResetView.as_view(), name='forgot_password'),
-    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+    path('forgot-password/', ForgotPasswordResetView.as_view(), name='forgot_password'),
+    path('reset-password-profile/', ResetPasswordProfileView.as_view(), name='reset_password'),
+    path('reset-password-forgot/', ResetPasswordForgotView.as_view(), name='reset_password_forgot'),
     path('patients/by-user/<user_id>/', PatientsByUserView.as_view(), name='patients_by_user'),
 ]
 

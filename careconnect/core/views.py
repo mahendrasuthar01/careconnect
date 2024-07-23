@@ -110,14 +110,14 @@ class FavoriteViewSet(viewsets.ModelViewSet):
                     doctor.is_favorite = True
                     doctor.save()
                     serializer = DoctorSerializer(doctor)
-                    return Response({"message": "Favorite item added successfully", "Doctor data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
+                    return Response({"message": "Favorite item added successfully", "doctor_data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
             elif entity_type == 2:
                 hospital = Hospital.objects.filter(id=entity_id).first()
                 if hospital:
                     hospital.is_favorite = True
                     hospital.save()
                     serializer = HospitalSerializer(hospital)
-                    return Response({"message": "Favorite item added successfully", "Hospital data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
+                    return Response({"message": "Favorite item added successfully", "hospital_data": serializer.data, "user_id": user_id, "entity_id": entity_id, "entity_type": entity_type}, status=status.HTTP_201_CREATED)
 
         return Response({"message": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
     
