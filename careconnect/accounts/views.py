@@ -70,17 +70,22 @@ class CustomLoginView(APIView):
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             
-            user_obj = User.objects.get(email=email)
-            if user_obj:
-                if user_obj.check_password(password):
-                    token = JWTAuthentication.generate_jwt(user_obj)
-                   
-                    return_dict = {
-                        'user': {"user_id": str(user_obj.id) ,'email': user_obj.email, 'username': user_obj.username},
-                        'token': {'type': 'Bearer', 'token': token}
-                    }
+            try: 
+                user_obj = User.objects.get(email=email)
+                if user_obj:
+                    if user_obj.check_password(password):
+                        token = JWTAuthentication.generate_jwt(user_obj)
+                    
+                        return_dict = {
+                            'user': {"user_id": str(user_obj.id) ,'email': user_obj.email, 'username': user_obj.username},
+                            'token': {'type': 'Bearer', 'token': token}
+                        }
 
-                    return Response(return_dict, status=status.HTTP_200_OK)
+                        return Response(return_dict, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+                    
+            except User.DoesNotExist:
                 return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
@@ -180,15 +185,19 @@ class ResetPasswordProfileView(APIView):
         """
         
         serializer = ResetPasswordProfileSerializer(data=request.data)
+
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if not current_password or not new_password:
+            return Response({'error': 'Current password and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
         if serializer.is_valid():
             user_token = JWTAuthentication.get_current_user(self, request) 
             if user_token is None:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
             
             user_email = user_token.email
-
-            current_password = serializer.validated_data['current_password']
-            new_password = serializer.validated_data['new_password']
             
             if not user_token.check_password(current_password):
                 return Response({'error': 'Current password is incorrect'}, status=status.HTTP_400_BAD_REQUEST)

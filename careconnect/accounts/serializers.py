@@ -95,6 +95,16 @@ class ResetPasswordProfileSerializer(serializers.Serializer):
     class Meta:
         fields = ['current_password', 'new_password']
 
+    def validate_current_password(self, value):
+        if value is None or not value:
+            raise serializers.ValidationError({"current_password": "Field required."})
+        return value
+
+    def validate_new_password(self, value: str):
+        if not value:
+            raise serializers.ValidationError({"new_password": "Field required."})
+        return value
+
 class ResetPasswordForgotSerializer(serializers.Serializer):
     email = serializers.EmailField()
     new_password = serializers.CharField()
@@ -134,12 +144,9 @@ class PatientSerializer(DocumentSerializer):
         booking_for = validated_data['booking_for']
         user_id = validated_data['user_id']
 
-        # Ensure `name` defaults to an empty string if not provided
         validated_data['patient_name'] = validated_data.get('patient_name', '')
 
         if booking_for == 'Self':
-            # if Patient.objects(user_id=user_id).first():
-            #     raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
 
             user = User.objects.get(id=user_id.id)
             
@@ -147,15 +154,14 @@ class PatientSerializer(DocumentSerializer):
             validated_data['gender'] = user.gender if hasattr(user, 'gender') else ''
             validated_data['age'] = user.dob if hasattr(user, 'dob') else ''
 
-        else:
+        elif booking_for == 'Other':
             validated_data.get('patient_name', '')
 
-            # if Patient.objects(
-            #     booking_for='Other',
-            #     patient_name=patient_name,
-            #     user_id=user_id,
-            # ).first():
-            #     raise serializers.ValidationError({"error": {"message": "Patient already exists"}})
+            if validated_data['patient_name'] == '' or validated_data['gender'] == None or validated_data['age'] == None:
+                raise serializers.ValidationError({"error": {"message": "Please select all fields"}})
+
+        else:
+            raise serializers.ValidationError({"error": {"message": "Please select all fields"}})
 
         patient = Patient(**validated_data)
         patient.save()

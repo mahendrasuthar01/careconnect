@@ -57,9 +57,11 @@ class User(Document):
 class BookingForChoices:
     SELF = 'Self'
     OTHER = 'Other'
+    SELECT = ''
     CHOICES = [
         (SELF, 'Self'),
         (OTHER, 'Other'),
+        (SELECT, '')
     ]
 
 class Patient(Document):

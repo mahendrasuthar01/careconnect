@@ -36,6 +36,6 @@ class Review(Document):
         (2, "Hospital")])
     user_id = ReferenceField(User, reverse_delete_rule=CASCADE, required=True)
     rating = FloatField(default=0.0, min_value=0.0, max_value=5.0)    
-    description = StringField(required=False)
+    description = StringField(required=False, null=True)
     files = StringField(required=False)
     created_at = DateTimeField(default=datetime.utcnow, required=True)
