@@ -45,6 +45,13 @@ class AppointmentViewset(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_queryset(self):
+        """
+        Retrieves a queryset of Appointment objects based on the provided query parameters.
+
+        :return: A queryset of Appointment objects filtered by doctor_id and status.
+        :rtype: QuerySet
+        """
+
         queryset = Appointment.objects.all().order_by('date_time')
         
         doctor_id = self.request.query_params.get('doctor_id')
@@ -58,6 +65,18 @@ class AppointmentViewset(viewsets.ModelViewSet):
         return queryset
 
     def list(self, request, *args, **kwargs):
+        """
+        Retrieves a list of appointments.
+
+        Args:
+            self (object): The instance of the view.
+            request (Request): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object containing the serialized appointment data.
+        """
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         
