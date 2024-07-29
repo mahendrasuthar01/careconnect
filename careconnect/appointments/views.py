@@ -7,8 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from datetime import datetime
 from accounts.authentication import JWTAuthentication
+from .pagination import CustomPagination
 
-# Create your views here.
 class DoctorPackageViewset(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     serializer_class = DoctorPackageSerializer
@@ -42,18 +42,31 @@ class AppointmentViewset(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     queryset = Appointment.objects.all()
     permission_classes = [AllowAny]
-
+    pagination_class = CustomPagination
 
     def get_queryset(self):
-
-        """
-    	Returns the queryset of appointments filtered by the provided doctor_id if it exists, 
-    	otherwise returns the default queryset.
-    	"""
+        queryset = Appointment.objects.all().order_by('date_time')
+        
         doctor_id = self.request.query_params.get('doctor_id')
+        status = self.request.query_params.get('status')
+        
         if doctor_id:
-            return Appointment.objects.filter(doctor_id=doctor_id)
-        return Appointment.objects.all().order_by('date_time')
+            queryset = queryset.filter(doctor_id=doctor_id)
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
 
