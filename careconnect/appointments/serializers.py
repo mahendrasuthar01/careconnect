@@ -27,6 +27,7 @@ class DoctorPackageSerializer(DocumentSerializer):
 
 class AppointmentSerializer(DocumentSerializer):
     doctor = DoctorSerializer(source='doctor_id', read_only=True)
+    # doctor_name = serializers.CharField(read_only=True)
     booking_id = serializers.CharField(read_only=True)
     date_formatted = serializers.SerializerMethodField()
     time_formatted = serializers.SerializerMethodField()
@@ -84,6 +85,8 @@ class AppointmentSerializer(DocumentSerializer):
         if obj.date_time:
             return obj.date_time.strftime('%I:%M %p')
         return None
+    
+    # def get_doctor_name(self, obj):
 
     
 class AppointmentCancellationSerializer(DocumentSerializer):
