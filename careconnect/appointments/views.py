@@ -56,12 +56,15 @@ class AppointmentViewset(viewsets.ModelViewSet):
         
         doctor_id = self.request.query_params.get('doctor_id')
         status = self.request.query_params.get('status')
+        status_all = self.request.query_params.get('status_all')
         
         if doctor_id:
             queryset = queryset.filter(doctor_id=doctor_id)
         if status:
             queryset = queryset.filter(status=status)
-        
+        if status_all:
+            queryset = queryset.filter(status=status_all)
+  
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -78,14 +81,20 @@ class AppointmentViewset(viewsets.ModelViewSet):
             Response: The HTTP response object containing the serialized appointment data.
         """
         queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        status_all = self.request.query_params.get('status_all')
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        if status_all:
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
 
