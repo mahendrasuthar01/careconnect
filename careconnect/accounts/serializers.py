@@ -1,4 +1,5 @@
 from rest_framework_mongoengine.serializers import DocumentSerializer
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import User, Patient
 from .email_utils import EmailUtil
@@ -28,11 +29,15 @@ class UserSerializer(DocumentSerializer):
 
         username = attrs.get('username')
         email = attrs.get('email')
+        password = attrs.get('password')
 
         # Check if the username is unique
         if User.objects(username=username).count() > 0 or User.objects(email=email).count() > 0:
             raise serializers.ValidationError({"error": {"message": "Username or Email already exists"}})
 
+        # Hash the password before proceeding
+        attrs['password'] = make_password(password)
+        
         return super().validate(attrs)
     
     def validate_email(self, value):

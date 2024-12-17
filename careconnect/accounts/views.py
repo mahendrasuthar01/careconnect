@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from .models import User, Patient
 from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer, PatientSerializer, ResetPasswordProfileSerializer
 from .authentication import JWTAuthentication
@@ -47,30 +47,30 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class UserDetailAPIView(APIView): 
-    def create(self, request, *args, **kwargs):
-        """
-        Creates a new user.
+    # def create(self, request, *args, **kwargs):
+    #     """
+    #     Creates a new user.
         
-        Args:
-            request (Request): The HTTP request object.
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
+    #     Args:
+    #         request (Request): The HTTP request object.
+    #         *args: Variable length argument list.
+    #         **kwargs: Arbitrary keyword arguments.
         
-        Returns:
-            Response: The HTTP response object with the user data if the user is created successfully,
-                      otherwise an error response.
-        """
-        serializer = self.get_serializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except ValidationError as e:
-            # Customize the error response to be a dictionary
-            error_response = {key: value[0] if isinstance(value, list) else value for key, value in e.detail.items()}
-            return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
+    #     Returns:
+    #         Response: The HTTP response object with the user data if the user is created successfully,
+    #                   otherwise an error response.
+    #     """
+    #     serializer = self.get_serializer(data=request.data)
+    #     try:
+    #         serializer.is_valid(raise_exception=True)
+    #     except ValidationError as e:
+    #         # Customize the error response to be a dictionary
+    #         error_response = {key: value[0] if isinstance(value, list) else value for key, value in e.detail.items()}
+    #         return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def patch(self, request, *args, **kwargs):
         """
@@ -137,7 +137,7 @@ class CustomLoginView(APIView):
             
             user_obj = User.objects.get(email=email)
             if user_obj:
-                if user_obj.password == password:
+                if user_obj.check_password(password):
                     token = JWTAuthentication.generate_jwt(user_obj)
                    
                     return_dict = {
@@ -357,10 +357,10 @@ class ResetPasswordProfileView(APIView):
         if not user.is_authenticated:
             return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if current_password != user.password:
+        if not check_password(current_password, user.password):
             return Response({'error': 'Current password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user.password = new_password 
+        user.password = make_password(new_password )
         user.save()
 
         return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)
