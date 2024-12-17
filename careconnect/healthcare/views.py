@@ -31,8 +31,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
         Returns:
             The path to the saved file in the format 'media/category_files/filename'.
         """
-
+        print ("Writing11111111111")
         file_path = os.path.join(settings.MEDIA_ROOT, 'category_files', file.name)
+        print ("Writing", file_path)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'wb+') as destination:
             for chunk in file.chunks():

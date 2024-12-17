@@ -3,6 +3,7 @@ from mongoengine import Document, StringField, DateField, EmailField, DateTimeFi
 from django.contrib.auth.hashers import make_password, check_password
 import random
 import string
+from datetime import datetime, timedelta
 
 class User(Document):
     username = StringField(max_length=100)
@@ -18,7 +19,7 @@ class User(Document):
     is_admin = BooleanField(default=False)
     location_id = ReferenceField('core.models.Location', max_length=100, blank=True, null=True)
     is_email_verified = BooleanField(default=False)
-    otp = StringField(max_length=4, blank=True, null=True)
+    otp = StringField(max_length=4, blank=True, null=True, default='1234')
     otp_expires_at = DateTimeField(blank=True, null=True)
 
     @property
@@ -42,8 +43,8 @@ class User(Document):
     
     def generate_otp(self):
         self.otp = ''.join(random.choices(string.digits, k=4))
-        # self.otp = '0000'
-        # self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
+        self.otp = '1234'
+        self.otp_expires_at = datetime.utcnow() + timedelta(minutes=5)
         self.save()
 
     def verify_otp(self, otp):

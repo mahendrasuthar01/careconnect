@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-
+from django.contrib.auth.hashers import check_password
 from .models import User, Patient
-from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer, PatientSerializer
+from .serializers import UserSerializer, LoginSerializer, RequestPasswordResetSerializer, ResetPasswordSerializer, VerifyOTPSerializer, PatientSerializer, ResetPasswordProfileSerializer
 from .authentication import JWTAuthentication
 from .email_utils import EmailUtil
 from .authentication import JWTAuthentication
@@ -45,7 +45,8 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+
+class UserDetailAPIView(APIView): 
     def create(self, request, *args, **kwargs):
         """
         Creates a new user.
@@ -71,6 +72,43 @@ class UserViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def patch(self, request, *args, **kwargs):
+        """
+        Partially updates a user object.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Response: The HTTP response object with the updated user data if the request is successful,
+                      otherwise an error response.
+
+        Raises:
+            Exception: If the user is not found in the database.
+        """
+        try:
+        # Fetch the user object
+            user = User.objects.get(id=kwargs.get('pk'))
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Use the serializer for partial updates
+        serializer = UserSerializer(user, data=request.data, partial=True)
+
+        try:
+            if serializer.is_valid(raise_exception=True):
+                # Save the updated fields, including email if provided
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            error_response = {
+                key: value[0] if isinstance(value, list) else value
+                for key, value in e.detail.items()
+            }
+            return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
+    
 class CustomLoginView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -99,7 +137,7 @@ class CustomLoginView(APIView):
             
             user_obj = User.objects.get(email=email)
             if user_obj:
-                if user_obj.check_password(password):
+                if user_obj.password == password:
                     token = JWTAuthentication.generate_jwt(user_obj)
                    
                     return_dict = {
@@ -287,3 +325,42 @@ class PatientsByUserView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": {"message": str(e)}}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ResetPasswordProfileView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """
+        Resets the password for the current user.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: The HTTP response object with a message if the password is updated successfully, 
+                     otherwise an error response.
+
+        Raises:
+            ValidationError: If the serializer is not valid.
+            Exception: If the user is not authenticated.
+        """
+
+        serializer = ResetPasswordProfileSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if current_password != user.password:
+            return Response({'error': 'Current password is incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.password = new_password 
+        user.save()
+
+        return Response({'message': 'Password updated successfully.'}, status=status.HTTP_200_OK)

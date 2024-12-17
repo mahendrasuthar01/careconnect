@@ -31,3 +31,4 @@ uritemplate==4.1.1
 uvicorn==0.30.1
 zope.event==5.0
 zope.interface==6.4.post2
+django-seed

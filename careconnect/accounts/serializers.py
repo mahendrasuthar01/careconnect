@@ -34,6 +34,26 @@ class UserSerializer(DocumentSerializer):
             raise serializers.ValidationError({"error": {"message": "Username or Email already exists"}})
 
         return super().validate(attrs)
+    
+    def validate_email(self, value):
+        """
+        Ensure email is unique if provided.
+        """
+        if value:
+            # Check if any other user has the same email
+            existing_user = User.objects(email=value).first()
+            if existing_user and str(existing_user.id) != str(self.instance.id):
+                raise serializers.ValidationError("This email is already in use.")
+        return value
+
+    def update(self, instance, validated_data):
+        """
+        Update only the fields provided in `validated_data`.
+        """
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
         
     def perform_create(self, validated_data):
 
@@ -84,6 +104,10 @@ class RequestPasswordResetSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['email']
+
+class ResetPasswordProfileSerializer(serializers.Serializer):
+    current_password = serializers.CharField()
+    new_password = serializers.CharField()
 
 class ResetPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField()
